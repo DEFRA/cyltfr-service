@@ -12,7 +12,9 @@ const schema = joi.object().keys({
   env: joi.string().valid('dev', 'test', 'prod-green', 'prod-blue'),
   host: joi.string().hostname().required(),
   port: joi.number().integer().required(),
-  db: joi.string().required()
+  db: joi.string().required(),
+  esriClientId: joi.string().required(),
+  esriClientSecret: joi.string().required()
 })
 
 const config = {

@@ -1,6 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const service = require('../services')
+const { riskQuery } = require('../services/riskQuery')
 
 module.exports = {
   method: 'GET',
@@ -12,6 +13,9 @@ module.exports = {
 
       try {
         const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
+        const riskQueryResult = await riskQuery(params.x, params.y)
+
+        console.log('riskQueryResult: ', riskQueryResult)
 
         /*
          * Do some assertions around the result we get back from the database
@@ -49,15 +53,15 @@ module.exports = {
           reservoirDryRisk = risk.dry_reservoir_risk
         }
 
-        if (risk.wet_reservoir_risk && risk.wet_reservoir_risk !== 'Error') {
-          reservoirWetRisk = risk.wet_reservoir_risk.map(function (item) {
+        if (riskQueryResult.length > 0) {
+          reservoirWetRisk = riskQueryResult.map(function (item) {
             return {
-              reservoirName: item.reservoir,
-              location: item.ngr,
-              riskDesignation: item.risk_designation,
-              undertaker: item.undertaker,
-              leadLocalFloodAuthority: item.llfa_name,
-              comments: item.comments
+              reservoirName: item.attributes.RESERVOIR,
+              location: item.attributes.NGR,
+              riskDesignation: item.attributes.RISK_DESIGNATION,
+              undertaker: item.attributes.UNDERTAKER,
+              leadLocalFloodAuthority: item.attributes.LLFA_NAME,
+              comments: item.attributes.COMMENTS
             }
           })
         } else {
