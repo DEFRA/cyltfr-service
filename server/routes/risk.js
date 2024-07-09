@@ -15,8 +15,6 @@ module.exports = {
         const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
         const riskQueryResult = await riskQuery(params.x, params.y)
 
-        console.log('riskQueryResult: ', riskQueryResult)
-
         /*
          * Do some assertions around the result we get back from the database
          */
@@ -38,23 +36,23 @@ module.exports = {
         let reservoirWetRisk = null
         let riverAndSeaRisk = null
 
-        if (risk.dry_reservoir_risk && risk.dry_reservoir_risk !== 'Error') {
-          reservoirDryRisk = risk.dry_reservoir_risk.map(function (item) {
+        if (riskQueryResult.dryReservoirs.length > 0) {
+          reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
             return {
-              reservoirName: item.reservoir,
-              location: item.ngr,
-              riskDesignation: item.risk_designation,
-              undertaker: item.undertaker,
-              leadLocalFloodAuthority: item.llfa_name,
-              comments: item.comments
+              reservoirName: item.attributes.reservoir,
+              location: item.attributes.ngr,
+              riskDesignation: item.attributes.risk_designation,
+              undertaker: item.attributes.undertaker,
+              leadLocalFloodAuthority: item.attributes.llfa_name,
+              comments: item.attributes.comments
             }
           })
         } else {
           reservoirDryRisk = risk.dry_reservoir_risk
         }
 
-        if (riskQueryResult.length > 0) {
-          reservoirWetRisk = riskQueryResult.map(function (item) {
+        if (riskQueryResult.wetReservoirs.length > 0) {
+          reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
             return {
               reservoirName: item.attributes.RESERVOIR,
               location: item.attributes.NGR,

@@ -8,9 +8,8 @@ const appManager = ApplicationCredentialsManager.fromCredentials({
 })
 
 const riskQuery = async (x, y) => {
-  console.log('Inside the riskQuery')
+  const featureLayers = {}
   const manager = await appManager.refreshToken()
-  console.log(x)
   const queryGeometry = {
     x,
     y,
@@ -19,7 +18,7 @@ const riskQuery = async (x, y) => {
     }
   }
   try {
-    const queryResults = await queryFeatures({
+    const wetReservoirs = await queryFeatures({
       url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/1',
       geometry: queryGeometry,
       geometryType: 'esriGeometryPoint',
@@ -27,7 +26,19 @@ const riskQuery = async (x, y) => {
       returnGeometry: 'false',
       authentication: manager
     })
-    return queryResults.features
+    featureLayers.wetReservoirs = wetReservoirs.features
+
+    const dryReservoirs = await queryFeatures({
+      url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/0',
+      geometry: queryGeometry,
+      geometryType: 'esriGeometryPoint',
+      spatialRel: 'esriSpatialRelIntersects',
+      returnGeometry: 'false',
+      authentication: manager
+    })
+    featureLayers.dryReservoirs = dryReservoirs.features
+
+    return featureLayers
   } catch (err) {
     console.log(err)
   }
