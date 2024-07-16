@@ -48,7 +48,7 @@ module.exports = {
             }
           })
         } else {
-          reservoirDryRisk = risk.dry_reservoir_risk
+          reservoirDryRisk = riskQueryResult.dryReservoirs
         }
 
         if (riskQueryResult.wetReservoirs.length > 0) {
@@ -63,12 +63,12 @@ module.exports = {
             }
           })
         } else {
-          reservoirWetRisk = risk.wet_reservoir_risk
+          reservoirWetRisk = riskQueryResult.wetReservoirs
         }
 
         if (risk.rofrs_risk) {
           riverAndSeaRisk = {
-            probabilityForBand: risk.rofrs_risk.prob_4band,
+            probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band,
             suitability: risk.rofrs_risk.suitability,
             riskForInsuranceSOP: risk.rofrs_risk.risk_for_insurance_sop
           }
@@ -95,7 +95,7 @@ module.exports = {
           reservoirDryRisk,
           reservoirWetRisk,
           riverAndSeaRisk,
-          surfaceWaterRisk: risk.surface_water_risk,
+          surfaceWaterRisk: riskQueryResult.surfaceWater[0].attributes.Risk_band,
           surfaceWaterSuitability: risk.surface_water_suitability,
           extraInfo: risk.extra_info
         }
