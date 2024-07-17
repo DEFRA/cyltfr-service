@@ -7,59 +7,65 @@ const appManager = ApplicationCredentialsManager.fromCredentials({
   clientSecret: config.esriClientSecret
 })
 
+const layer = {
+  wetReservoirsLayer: 1,
+  dryReservoirsLayer: 0,
+  surfaceWaterLayer: 0,
+  riversAndSeaLayer: 0
+}
+
 const riskQuery = async (x, y) => {
   const featureLayers = {}
   const manager = await appManager.refreshToken()
-  const queryGeometry = {
+  const geometry = {
     x,
     y,
     spatialReference: {
       wkid: 27000
     }
   }
+  const geometryType = 'esriGeometryPoint'
+  const spatialRel = 'esriSpatialRelIntersects'
+  const returnGeometry = 'false'
+  const outFields = 'Risk_band' // used to specify property wanted
 
-  console.log(queryGeometry)
+  const queries = [
+    {
+      key: 'wetReservoirs',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.wetReservoirsLayer}`
+    },
+    {
+      key: 'dryReservoirs',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.dryReservoirsLayer}`
+    },
+    {
+      key: 'riversAndSea',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/${layer.riversAndSeaLayer}`,
+      outFields
+    },
+    {
+      key: 'surfaceWater',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/${layer.surfaceWaterLayer}`,
+      outFields
+    }
+  ]
+
   try {
-    const wetReservoirs = await queryFeatures({
-      url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/1',
-      geometry: queryGeometry,
-      geometryType: 'esriGeometryPoint',
-      spatialRel: 'esriSpatialRelIntersects',
-      returnGeometry: 'false',
-      authentication: manager
-    })
-    featureLayers.wetReservoirs = wetReservoirs.features
+    const results = await Promise.all(queries.map(query =>
+      queryFeatures({
+        url: query.url,
+        geometry,
+        geometryType,
+        spatialRel,
+        returnGeometry,
+        authentication: manager,
+        outFields: query.outFields || undefined
+      })
+    ))
 
-    const dryReservoirs = await queryFeatures({
-      url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/0',
-      geometry: queryGeometry,
-      geometryType: 'esriGeometryPoint',
-      spatialRel: 'esriSpatialRelIntersects',
-      returnGeometry: 'false',
-      authentication: manager
+    results.forEach((result, index) => {
+      featureLayers[queries[index].key] = result.features
     })
-    featureLayers.dryReservoirs = dryReservoirs.features
-
-    const riversAndSea = await queryFeatures({
-      url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0',
-      geometry: queryGeometry,
-      geometryType: 'esriGeometryPoint',
-      spatialRel: 'esriSpatialRelIntersects',
-      returnGeometry: 'false',
-      authentication: manager
-    })
-    featureLayers.riversAndSea = riversAndSea.features
-
-    const surfaceWater = await queryFeatures({
-      url: 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0',
-      geometry: queryGeometry,
-      geometryType: 'esriGeometryPoint',
-      spatialRel: 'esriSpatialRelIntersects',
-      returnGeometry: 'false',
-      authentication: manager,
-      outFields: 'Risk_band'
-    })
-    featureLayers.surfaceWater = surfaceWater.features
 
     return featureLayers
   } catch (err) {
