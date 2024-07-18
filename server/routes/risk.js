@@ -14,10 +14,9 @@ module.exports = {
       try {
         const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
         const riskQueryResult = await riskQuery(params.x, params.y)
-
         /*
-         * Do some assertions around the result we get back from the database
-         */
+        * Do some assertions around the result we get back from the database
+        */
         if (!result || !Array.isArray(result.rows) || result.rows.length !== 1) {
           return boom.badRequest('Invalid result', new Error('Expected an Array'))
         }
@@ -29,9 +28,9 @@ module.exports = {
         }
 
         /*
-         * If we get here we can be sure we have a valid result from
-         * the database and we can start to prepare our return response
-         */
+        * If we get here we can be sure we have a valid result from
+        * the database and we can start to prepare our return response
+        */
         let reservoirDryRisk = null
         let reservoirWetRisk = null
         let riverAndSeaRisk = null
@@ -95,7 +94,7 @@ module.exports = {
           reservoirDryRisk,
           reservoirWetRisk,
           riverAndSeaRisk,
-          surfaceWaterRisk: riskQueryResult.surfaceWater[0].attributes.Risk_band,
+          surfaceWaterRisk: riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
           surfaceWaterSuitability: risk.surface_water_suitability,
           extraInfo: risk.extra_info
         }
