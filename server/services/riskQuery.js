@@ -62,7 +62,6 @@ const riskQuery = async (x, y) => {
         outFields: query.outFields || undefined
       })
     ))
-
     results.forEach((result, index) => {
       featureLayers[queries[index].key] = result.features
     })
