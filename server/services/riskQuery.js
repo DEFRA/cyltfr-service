@@ -1,6 +1,6 @@
 const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
 const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
-const config = require('../../config/server.json')
+const config = require('../config')
 
 const appManager = ApplicationCredentialsManager.fromCredentials({
   clientId: config.esriClientId,
