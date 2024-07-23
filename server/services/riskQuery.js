@@ -11,6 +11,7 @@ const layer = {
   wetReservoirsLayer: 1,
   dryReservoirsLayer: 0,
   floodAlertAreasLayer: 2,
+  floodWarningAreasLayer: 3,
   surfaceWaterLayer: 0,
   riversAndSeaLayer: 0
 }
@@ -42,6 +43,10 @@ const riskQuery = async (x, y) => {
     {
       key: 'floodAlertAreas',
       url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.floodAlertAreasLayer}`
+    },
+    {
+      key: 'floodAlertAreas',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.floodWarningAreasLayer}`
     },
     {
       key: 'riversAndSea',

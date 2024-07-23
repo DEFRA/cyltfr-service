@@ -30,7 +30,7 @@ module.exports = {
 
         /*
         * If we get here we can be sure we have a valid result from
-        * the database and we can start to prepare our return response
+        * the ESRI database and we can start to prepare our return response
         */
         let reservoirDryRisk = null
         let reservoirWetRisk = null
@@ -69,19 +69,23 @@ module.exports = {
         if (risk.rofrs_risk) {
           riverAndSeaRisk = {
             probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band,
-            suitability: risk.rofrs_risk.suitability,
-            riskForInsuranceSOP: risk.rofrs_risk.risk_for_insurance_sop
+            suitability: risk.rofrs_risk.suitability, // are these needed?
+            riskForInsuranceSOP: risk.rofrs_risk.risk_for_insurance_sop // are these needed?
           }
         }
 
         let isGroundwaterArea = false
         const floodAlertArea = Array.isArray(risk.flood_alert_area) ? risk.flood_alert_area : []
-        const floodAlertAreas = riskQueryResult.floodAlertAreas ? riskQueryResult.floodAlertAreas : []
+        const floodAlertAreas = Array.isArray(riskQueryResult.floodAlertAreas) ? riskQueryResult.floodAlertAreas : []
         const floodWarningArea = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
+        const floodWarningAreas = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
 
+        console.log('here')
         if (floodAlertArea.find((faa) => faa.charAt(5) === 'G')) {
+          console.log('inif')
           isGroundwaterArea = true
         } else if (floodWarningArea.find((fwa) => fwa.charAt(5) === 'G')) {
+          console.log('inelse')
           isGroundwaterArea = true
         }
 
@@ -89,7 +93,7 @@ module.exports = {
           inEngland: risk.in_england,
           isGroundwaterArea,
           floodAlertAreas,
-          floodWarningArea,
+          floodWarningAreas,
           inFloodAlertArea: risk.flood_alert_area === 'Error' ? 'Error' : floodAlertArea.length > 0,
           inFloodWarningArea: risk.flood_warning_area === 'Error' ? 'Error' : floodWarningArea.length > 0,
           leadLocalFloodAuthority: risk.lead_local_flood_authority,

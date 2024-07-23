@@ -4,6 +4,7 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
   const reservoirsDryDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/0'
   const reservoirsWetDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/1'
   const floodAlertAreasDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/2'
+  const floodWarningAreasDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/3'
   const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0'
   const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
   // check other data (geometry type, spatial relation, return geometry)
@@ -56,6 +57,21 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
         units: 'esriMeters'
       },
       features: locationData.floodAlertAreas
+    }
+  }
+  if (url === floodWarningAreasDataUrl) {
+    // find location using geometry
+    const locationData = addressData[0][geometry.x][geometry.y]
+    return {
+      objectIdFieldName: 'Flood alert',
+      uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
+      globalIdFieldName: '',
+      geometryProperties: {
+        shapeAreaFieldName: 'Shape__Area',
+        shapeLengthFieldName: 'Shape__Length',
+        units: 'esriMeters'
+      },
+      features: locationData.floodWarningAreas
     }
   }
   if (url === riversAndSeaDataUrl) {
