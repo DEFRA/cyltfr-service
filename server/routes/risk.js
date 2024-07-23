@@ -18,14 +18,14 @@ module.exports = {
         /*
         * Do some assertions around the result we get back from the database
         */
-        if (!result || !Array.isArray(result.rows) || result.rows.length !== 1) {
+        if (!riskQueryResult || !Array.isArray(result.rows) || result.rows.length !== 1) {
           return boom.badRequest('Invalid result', new Error('Expected an Array'))
         }
 
-        const risk = result.rows[0].calculate_flood_risk
+        const risk = result.rows[0].calculate_flood_risk // this can be removed data service ticket is complete
 
         if (!risk) {
-          return boom.badRequest('Invalid result', new Error('Missing calculate_flood_risk key'))
+          return boom.badRequest('Invalid result', new Error('Missing calculate_flood_risk key')) // this can be removed data service ticket is complete
         }
 
         /*
@@ -68,41 +68,42 @@ module.exports = {
 
         if (risk.rofrs_risk) {
           riverAndSeaRisk = {
-            probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band,
-            suitability: risk.rofrs_risk.suitability, // are these needed?
-            riskForInsuranceSOP: risk.rofrs_risk.risk_for_insurance_sop // are these needed?
+            probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band
           }
         }
 
         let isGroundwaterArea = false
-        const floodAlertArea = Array.isArray(risk.flood_alert_area) ? risk.flood_alert_area : []
-        const floodAlertAreas = Array.isArray(riskQueryResult.floodAlertAreas) ? riskQueryResult.floodAlertAreas : []
-        const floodWarningArea = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
-        const floodWarningAreas = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
+        const floodAlertList = []
+        riskQueryResult.floodAlertAreas.forEach((area) => {
+          floodAlertList.push(area.attributes.FWS_TACODE)
+        })
+        const floodWarningList = []
+        riskQueryResult.floodWarningAreas.forEach((area) => {
+          floodWarningList.push(area.attributes.FWS_TACODE)
+        })
 
-        console.log('here')
-        if (floodAlertArea.find((faa) => faa.charAt(5) === 'G')) {
-          console.log('inif')
+        const floodAlertAreas = Array.isArray(floodAlertList) ? floodAlertList : []
+        const floodWarningAreas = Array.isArray(floodWarningList) ? floodWarningList : []
+
+        if (floodAlertAreas.find((faa) => faa.charAt(5) === 'G')) {
           isGroundwaterArea = true
-        } else if (floodWarningArea.find((fwa) => fwa.charAt(5) === 'G')) {
-          console.log('inelse')
+        } else if (floodWarningAreas.find((fwa) => fwa.charAt(5) === 'G')) {
           isGroundwaterArea = true
         }
 
         const response = {
-          inEngland: risk.in_england,
+          inEngland: risk.in_england, // this will be done in another ticket for the data service
           isGroundwaterArea,
           floodAlertAreas,
           floodWarningAreas,
-          inFloodAlertArea: risk.flood_alert_area === 'Error' ? 'Error' : floodAlertArea.length > 0,
-          inFloodWarningArea: risk.flood_warning_area === 'Error' ? 'Error' : floodWarningArea.length > 0,
-          leadLocalFloodAuthority: risk.lead_local_flood_authority,
+          inFloodAlertArea: floodAlertAreas === 'Error' ? 'Error' : floodAlertList.length > 0,
+          inFloodWarningArea: floodWarningAreas === 'Error' ? 'Error' : floodWarningList.length > 0,
+          leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
           reservoirDryRisk,
           reservoirWetRisk,
           riverAndSeaRisk,
           surfaceWaterRisk: riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
-          surfaceWaterSuitability: risk.surface_water_suitability,
-          extraInfo: risk.extra_info
+          extraInfo: risk.extra_info // this will be done in another ticket for the data service
         }
 
         return response

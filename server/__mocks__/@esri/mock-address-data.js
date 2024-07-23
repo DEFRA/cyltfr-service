@@ -22,6 +22,13 @@ module.exports = [{
           Shape__Area: 17836,
           Shape__Length: 12820
         }
+      }],
+      floodAlertAreas: [],
+      floodWarningAreas: [],
+      llfa: [{
+        attributes: {
+          name: 'A council'
+        }
       }]
     }
   },
@@ -30,7 +37,14 @@ module.exports = [{
       wetReservoirs: [],
       dryReservoirs: [],
       riversAndSea: [],
-      surfaceWater: []
+      surfaceWater: [],
+      floodAlertAreas: [],
+      floodWarningAreas: [],
+      llfa: [{
+        attributes: {
+          name: 'A council'
+        }
+      }]
     }
   },
   460121: {
@@ -104,7 +118,14 @@ module.exports = [{
           Shape__Length: 5001
         }
       }],
-      surfaceWater: []
+      surfaceWater: [],
+      floodAlertAreas: [],
+      floodWarningAreas: [],
+      llfa: [{
+        attributes: {
+          name: 'A council'
+        }
+      }]
     }
   }
 }]

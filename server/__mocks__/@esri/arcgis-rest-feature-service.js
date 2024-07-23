@@ -5,8 +5,10 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
   const reservoirsWetDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/1'
   const floodAlertAreasDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/2'
   const floodWarningAreasDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/3'
+  const llfaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/4'
   const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0'
   const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
+
   // check other data (geometry type, spatial relation, return geometry)
   geometryType === 'esriGeometryPoint' ? console.log('correct type') : console.log('wrong type')
   spatialRel === 'esriSpatialRelIntersects' ? console.log('correct spatial') : console.log('wrong spatial')
@@ -63,7 +65,7 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
     // find location using geometry
     const locationData = addressData[0][geometry.x][geometry.y]
     return {
-      objectIdFieldName: 'Flood alert',
+      objectIdFieldName: 'Flood warning',
       uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
       globalIdFieldName: '',
       geometryProperties: {
@@ -72,6 +74,21 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
         units: 'esriMeters'
       },
       features: locationData.floodWarningAreas
+    }
+  }
+  if (url === llfaDataUrl) {
+    // find location using geometry
+    const locationData = addressData[0][geometry.x][geometry.y]
+    return {
+      objectIdFieldName: 'Flood warning',
+      uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
+      globalIdFieldName: '',
+      geometryProperties: {
+        shapeAreaFieldName: 'Shape__Area',
+        shapeLengthFieldName: 'Shape__Length',
+        units: 'esriMeters'
+      },
+      features: locationData.llfa
     }
   }
   if (url === riversAndSeaDataUrl) {
@@ -104,13 +121,8 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
       features: [locationData.surfaceWater[0]]
     }
   } else {
-    console.log('URL pprovided may be incorrect')
+    console.log('URL provided may be incorrect')
   }
-  // check output field wanted
-  // if (outFields) {
-  //   console.log('outfields: ', locationData.riversAndSea[0].attributes)
-  //   return locationData.riversAndSea[0].attributes
-  // }
 }
 
 const checkCredentials = (authentication) => {
