@@ -14,6 +14,7 @@ module.exports = {
       try {
         const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
         const riskQueryResult = await riskQuery(params.x, params.y)
+
         /*
         * Do some assertions around the result we get back from the database
         */
@@ -75,6 +76,7 @@ module.exports = {
 
         let isGroundwaterArea = false
         const floodAlertArea = Array.isArray(risk.flood_alert_area) ? risk.flood_alert_area : []
+        const floodAlertAreas = riskQueryResult.floodAlertAreas ? riskQueryResult.floodAlertAreas : []
         const floodWarningArea = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
 
         if (floodAlertArea.find((faa) => faa.charAt(5) === 'G')) {
@@ -86,7 +88,7 @@ module.exports = {
         const response = {
           inEngland: risk.in_england,
           isGroundwaterArea,
-          floodAlertArea,
+          floodAlertAreas,
           floodWarningArea,
           inFloodAlertArea: risk.flood_alert_area === 'Error' ? 'Error' : floodAlertArea.length > 0,
           inFloodWarningArea: risk.flood_warning_area === 'Error' ? 'Error' : floodWarningArea.length > 0,
@@ -101,7 +103,7 @@ module.exports = {
 
         return response
       } catch (err) {
-        return boom.badRequest('Database call failed', err)
+        return boom.badRequest('Issue processing query', err)
       }
     },
     validate: {

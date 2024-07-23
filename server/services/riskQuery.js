@@ -10,6 +10,7 @@ const appManager = ApplicationCredentialsManager.fromCredentials({
 const layer = {
   wetReservoirsLayer: 1,
   dryReservoirsLayer: 0,
+  floodAlertAreasLayer: 2,
   surfaceWaterLayer: 0,
   riversAndSeaLayer: 0
 }
@@ -37,6 +38,10 @@ const riskQuery = async (x, y) => {
     {
       key: 'dryReservoirs',
       url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.dryReservoirsLayer}`
+    },
+    {
+      key: 'floodAlertAreas',
+      url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.floodAlertAreasLayer}`
     },
     {
       key: 'riversAndSea',
@@ -68,7 +73,7 @@ const riskQuery = async (x, y) => {
 
     return featureLayers
   } catch (err) {
-    console.log(err)
+    console.log('Risk query error: ', err)
   }
 }
 
