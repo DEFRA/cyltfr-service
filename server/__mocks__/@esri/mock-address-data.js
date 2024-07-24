@@ -1,3 +1,7 @@
+const LLFA_NAME = 'North Yorkshire'
+const UNDERTAKER = 'Yorkshire Water Services Ltd'
+const COMMENTS = 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority'
+
 module.exports = [{
   564228: {
     263339: {
@@ -56,9 +60,9 @@ module.exports = [{
             RESERVOIR: 'Eccup',
             NGR: 'SE3040041700',
             LLFA_NAME: 'Leeds',
-            UNDERTAKER: 'Yorkshire Water Services Ltd',
+            UNDERTAKER,
             RISK_DESIGNATION: 'High-risk',
-            COMMENTS: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority',
+            COMMENTS,
             ORIG_FID: 438,
             Shape__Area: 446481872,
             Shape__Length: 3336136
@@ -69,10 +73,10 @@ module.exports = [{
             OBJECTID: 487,
             RESERVOIR: 'Fewston',
             NGR: 'SE1870054100',
-            LLFA_NAME: 'North Yorkshire',
-            UNDERTAKER: 'Yorkshire Water Services Ltd',
+            LLFA_NAME,
+            UNDERTAKER,
             RISK_DESIGNATION: 'High-risk',
-            COMMENTS: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority',
+            COMMENTS,
             ORIG_FID: 487,
             Shape__Area: 438503456.25,
             Shape__Length: 3413035
@@ -83,10 +87,10 @@ module.exports = [{
             OBJECTID: 1418,
             RESERVOIR: 'Thruscross',
             NGR: 'SE1520057800',
-            LLFA_NAME: 'North Yorkshire',
-            UNDERTAKER: 'Yorkshire Water Services Ltd',
+            LLFA_NAME,
+            UNDERTAKER,
             RISK_DESIGNATION: 'High-risk',
-            COMMENTS: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority',
+            COMMENTS,
             ORIG_FID: 1418,
             Shape__Area: 456701781.25,
             Shape__Length: 3590905
@@ -98,10 +102,10 @@ module.exports = [{
           OBJECTID: 834,
           RESERVOIR: 'Lindley Wood',
           NGR: 'SE2150049300',
-          LLFA_NAME: 'North Yorkshire',
-          UNDERTAKER: 'Yorkshire Water Services Ltd',
+          LLFA_NAME,
+          UNDERTAKER,
           RISK_DESIGNATION: 'High-risk',
-          COMMENTS: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority',
+          COMMENTS,
           ORIG_FID: 834,
           Shape__Area: 299216772,
           Shape__Length: 2178732
