@@ -81,7 +81,7 @@ const riskQuery = async (x, y) => {
       featureLayers[queries[index].key] = result.features
     })
   } catch (err) {
-    console.log('Risk query error: ', err)
+    throw new Error(`Issue with Promise.all call: ${err.message}`)
   }
   return featureLayers
 }

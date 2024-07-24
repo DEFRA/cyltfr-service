@@ -7,9 +7,7 @@ const llfaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/s
 const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0'
 const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
 
-const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry, authentication, _outFields }) => {
-  // check other data (geometry type, spatial relation, return geometry)
-  checkOtherArgumentValues(geometryType, spatialRel, returnGeometry)
+const queryFeatures = ({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
   // check authentication
   checkCredentials(authentication)
 
@@ -70,12 +68,6 @@ const checkCredentials = (authentication) => {
   const authenticated = authentication === storedToken
 
   return authenticated
-}
-
-const checkOtherArgumentValues = (geometryType, spatialRel, returnGeometry) => {
-  geometryType === 'esriGeometryPoint' ? console.log('correct type') : console.log('wrong type')
-  spatialRel === 'esriSpatialRelIntersects' ? console.log('correct spatial') : console.log('wrong spatial')
-  returnGeometry === 'false' ? console.log('correct returnGeometry') : console.log('returnGeometry should be true')
 }
 
 module.exports = { queryFeatures }

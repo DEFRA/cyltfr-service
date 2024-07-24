@@ -27,8 +27,39 @@ module.exports = [{
           Shape__Length: 12820
         }
       }],
-      floodAlertAreas: [],
-      floodWarningAreas: [],
+      floodAlertAreas: [
+        {
+          attributes: {
+            OBJECTID: 553,
+            AREA: 'Lincs and Northants',
+            FWS_TACODE: '053FAG100BUH',
+            TA_NAME: 'Groundwater flooding south of the Humber Estuary',
+            DESCRIP: 'Groundwater Flooding in the area around Barrow upon Humber and Barton Upon Humber',
+            LA_NAME: 'North Lincolnshire',
+            QDIAL: '207000',
+            RIVER_SEA: 'Groundwater',
+            Shape__Area: 987880,
+            Shape__Length: 6811.902892555959
+          }
+        }
+      ],
+      floodWarningAreas: [
+        {
+          attributes: {
+            OBJECTID: 730,
+            AREA: 'Lincs and Northants',
+            FWS_TACODE: '053FWGBUH1',
+            TA_NAME: 'Groundwater flooding in Barrow Upon Humber and Barton Upon Humber',
+            DESCRIP: 'Groundwater flooding in Barrow and Barton Upon Humber including Orchard Close, Westoby Lane, Park View Close, Feather Lane and Wolsey Drive, Wrens Kitchen and properties on the Humber Bridge Industrial estate',
+            LA_NAME: 'North Lincolnshire',
+            PARENT: '053FAG100BUH',
+            QDIAL: '307054',
+            RIVER_SEA: 'Groundwater',
+            Shape__Area: 987880,
+            Shape__Length: 6811.902892555959
+          }
+        }
+      ],
       llfa: [{
         attributes: {
           name: 'A council'
