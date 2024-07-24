@@ -62,7 +62,7 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
     }
   }
 
-  console.log('Issue inside query feature mock')
+  return console.log('Issue inside query feature mock')
 }
 
 const checkCredentials = (authentication) => {

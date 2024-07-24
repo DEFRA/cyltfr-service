@@ -95,8 +95,6 @@ module.exports = {
           isGroundwaterArea,
           floodAlertAreas,
           floodWarningAreas,
-          inFloodAlertArea: floodAlertAreas === 'Error' ? 'Error' : floodAlertList.length > 0,
-          inFloodWarningArea: floodWarningAreas === 'Error' ? 'Error' : floodWarningList.length > 0,
           leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
           reservoirDryRisk,
           reservoirWetRisk,
