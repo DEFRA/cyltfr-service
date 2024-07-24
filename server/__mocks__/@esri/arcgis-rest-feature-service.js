@@ -7,7 +7,7 @@ const llfaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/s
 const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0'
 const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
 
-const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry, authentication, outFields }) => {
+const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry, authentication, _outFields }) => {
   // check other data (geometry type, spatial relation, return geometry)
   checkOtherArgumentValues(geometryType, spatialRel, returnGeometry)
   // check authentication
@@ -60,9 +60,9 @@ const queryFeatures = ({ url, geometry, geometryType, spatialRel, returnGeometry
       },
       features: isArray ? [locationData[featureKey][0]] : locationData[featureKey]
     }
-  } else {
-    console.log('URL provided may be incorrect')
   }
+
+  console.log('Issue inside query feature mock')
 }
 
 const checkCredentials = (authentication) => {

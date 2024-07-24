@@ -80,11 +80,10 @@ const riskQuery = async (x, y) => {
     results.forEach((result, index) => {
       featureLayers[queries[index].key] = result.features
     })
-
-    return featureLayers
   } catch (err) {
     console.log('Risk query error: ', err)
   }
+  return featureLayers
 }
 
 module.exports = { riskQuery }

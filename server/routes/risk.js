@@ -84,10 +84,9 @@ module.exports = {
 
         const floodAlertAreas = Array.isArray(floodAlertList) ? floodAlertList : []
         const floodWarningAreas = Array.isArray(floodWarningList) ? floodWarningList : []
+        const fifthChar = 5
 
-        if (floodAlertAreas.find((faa) => faa.charAt(5) === 'G')) {
-          isGroundwaterArea = true
-        } else if (floodWarningAreas.find((fwa) => fwa.charAt(5) === 'G')) {
+        if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
           isGroundwaterArea = true
         }
 
