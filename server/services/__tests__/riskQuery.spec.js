@@ -2,6 +2,7 @@ const { riskQuery } = require('../riskQuery')
 
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
+jest.mock('../riskData')
 jest.mock('../../config', () => ({
   esriClientId: 'mock-client-id',
   esriClientSecret: 'mock-client-secret'
