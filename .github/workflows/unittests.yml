@@ -7,8 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      AWS_BUCKET_REGION: unittest
-      AWS_BUCKET_NAME: unittest
+      DB_SERVER: unittest
     
     steps:
       - name: Checkout repository
