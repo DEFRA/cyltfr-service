@@ -106,19 +106,15 @@ module.exports = {
           extraInfo: riskQueryResult.extrainfo
         }
 
-        if (response.extraInfo !== 'Error') {
-          if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
-            response.extraInfo.forEach(item => {
-              if (!(item.riskoverride == null)) {
-                if (item.apply === 'holding') {
-                  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-                  if (riskOverride >= 0) {
-                    response.surfaceWaterRisk = RiskLevels[riskOverride]
-                  }
-                }
+        if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
+          response.extraInfo.forEach(item => {
+            if ((item.riskoverride !== null) && (item.apply === 'holding')) {
+              const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+              if (riskOverride >= 0) {
+                response.surfaceWaterRisk = RiskLevels[riskOverride]
               }
-            })
-          }
+            }
+          })
         }
 
         return response
