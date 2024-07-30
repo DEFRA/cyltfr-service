@@ -4,9 +4,11 @@ const db = require('../../db')
 const testData = require('./__test_data__/')
 const options = {
   method: 'GET',
-  url: '/floodrisk/391416/102196/20'
+  url: '/floodrisk/564228/263339/20'
 }
 
+jest.mock('@esri/arcgis-rest-feature-service')
+jest.mock('@esri/arcgis-rest-request')
 jest.mock('../../db')
 let server
 
@@ -108,6 +110,6 @@ describe('Unit tests - /floodrisk', () => {
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
-    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
+    expect(response.payload).toMatch('"surfaceWaterRisk":"High"')
   })
 })

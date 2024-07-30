@@ -1,6 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const service = require('../services')
+const { riskQuery } = require('../services/riskQuery')
 
 module.exports = {
   method: 'GET',
@@ -12,95 +13,98 @@ module.exports = {
 
       try {
         const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
+        const riskQueryResult = await riskQuery(params.x, params.y)
 
         /*
-         * Do some assertions around the result we get back from the database
-         */
-        if (!result || !Array.isArray(result.rows) || result.rows.length !== 1) {
+        * Do some assertions around the result we get back from the database
+        */
+        if (!riskQueryResult || !Array.isArray(result.rows) || result.rows.length !== 1) {
           return boom.badRequest('Invalid result', new Error('Expected an Array'))
         }
 
-        const risk = result.rows[0].calculate_flood_risk
+        const risk = result.rows[0].calculate_flood_risk // this can be removed data service ticket is complete
 
         if (!risk) {
-          return boom.badRequest('Invalid result', new Error('Missing calculate_flood_risk key'))
+          return boom.badRequest('Invalid result', new Error('Missing calculate_flood_risk key')) // this can be removed data service ticket is complete
         }
 
         /*
-         * If we get here we can be sure we have a valid result from
-         * the database and we can start to prepare our return response
-         */
+        * If we get here we can be sure we have a valid result from
+        * the ESRI database and we can start to prepare our return response
+        */
         let reservoirDryRisk = null
         let reservoirWetRisk = null
         let riverAndSeaRisk = null
 
-        if (risk.dry_reservoir_risk && risk.dry_reservoir_risk !== 'Error') {
-          reservoirDryRisk = risk.dry_reservoir_risk.map(function (item) {
+        if (riskQueryResult.dryReservoirs.length > 0) {
+          reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
             return {
-              reservoirName: item.reservoir,
-              location: item.ngr,
-              riskDesignation: item.risk_designation,
-              undertaker: item.undertaker,
-              leadLocalFloodAuthority: item.llfa_name,
-              comments: item.comments
+              reservoirName: item.attributes.reservoir,
+              location: item.attributes.ngr,
+              riskDesignation: item.attributes.risk_designation,
+              undertaker: item.attributes.undertaker,
+              leadLocalFloodAuthority: item.attributes.llfa_name,
+              comments: item.attributes.comments
             }
           })
         } else {
-          reservoirDryRisk = risk.dry_reservoir_risk
+          reservoirDryRisk = riskQueryResult.dryReservoirs
         }
 
-        if (risk.wet_reservoir_risk && risk.wet_reservoir_risk !== 'Error') {
-          reservoirWetRisk = risk.wet_reservoir_risk.map(function (item) {
+        if (riskQueryResult.wetReservoirs.length > 0) {
+          reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
             return {
-              reservoirName: item.reservoir,
-              location: item.ngr,
-              riskDesignation: item.risk_designation,
-              undertaker: item.undertaker,
-              leadLocalFloodAuthority: item.llfa_name,
-              comments: item.comments
+              reservoirName: item.attributes.RESERVOIR,
+              location: item.attributes.NGR,
+              riskDesignation: item.attributes.RISK_DESIGNATION,
+              undertaker: item.attributes.UNDERTAKER,
+              leadLocalFloodAuthority: item.attributes.LLFA_NAME,
+              comments: item.attributes.COMMENTS
             }
           })
         } else {
-          reservoirWetRisk = risk.wet_reservoir_risk
+          reservoirWetRisk = riskQueryResult.wetReservoirs
         }
-
-        if (risk.rofrs_risk) {
+        if (riskQueryResult.riversAndSea[0]) {
           riverAndSeaRisk = {
-            probabilityForBand: risk.rofrs_risk.prob_4band,
-            suitability: risk.rofrs_risk.suitability,
-            riskForInsuranceSOP: risk.rofrs_risk.risk_for_insurance_sop
+            probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band
           }
         }
 
         let isGroundwaterArea = false
-        const floodAlertArea = Array.isArray(risk.flood_alert_area) ? risk.flood_alert_area : []
-        const floodWarningArea = Array.isArray(risk.flood_warning_area) ? risk.flood_warning_area : []
+        const floodAlertList = []
+        riskQueryResult.floodAlertAreas.forEach((area) => {
+          floodAlertList.push(area.attributes.FWS_TACODE)
+        })
+        const floodWarningList = []
+        riskQueryResult.floodWarningAreas.forEach((area) => {
+          floodWarningList.push(area.attributes.FWS_TACODE)
+        })
 
-        if (floodAlertArea.find((faa) => faa.charAt(5) === 'G')) {
-          isGroundwaterArea = true
-        } else if (floodWarningArea.find((fwa) => fwa.charAt(5) === 'G')) {
+        const floodAlertAreas = Array.isArray(floodAlertList) ? floodAlertList : []
+        const floodWarningAreas = Array.isArray(floodWarningList) ? floodWarningList : []
+        const fifthChar = 5
+
+        if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
           isGroundwaterArea = true
         }
 
         const response = {
-          inEngland: risk.in_england,
+          inEngland: risk.in_england, // this will be done in another ticket for the data service
           isGroundwaterArea,
-          floodAlertArea,
-          floodWarningArea,
-          inFloodAlertArea: risk.flood_alert_area === 'Error' ? 'Error' : floodAlertArea.length > 0,
-          inFloodWarningArea: risk.flood_warning_area === 'Error' ? 'Error' : floodWarningArea.length > 0,
-          leadLocalFloodAuthority: risk.lead_local_flood_authority,
+          floodAlertAreas,
+          floodWarningAreas,
+          leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
           reservoirDryRisk,
           reservoirWetRisk,
           riverAndSeaRisk,
-          surfaceWaterRisk: risk.surface_water_risk,
-          surfaceWaterSuitability: risk.surface_water_suitability,
-          extraInfo: risk.extra_info
+          surfaceWaterRisk: riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
+          extraInfo: risk.extra_info // this will be done in another ticket for the data service
         }
 
         return response
       } catch (err) {
-        return boom.badRequest('Database call failed', err)
+        return boom.badRequest('Issue processing query', err)
       }
     },
     validate: {

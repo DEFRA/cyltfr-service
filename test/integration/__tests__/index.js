@@ -1,6 +1,8 @@
 const STATUS_CODES = require('http2').constants
 const createServer = require('../../../server')
 
+jest.mock('@esri/arcgis-rest-feature-service')
+jest.mock('@esri/arcgis-rest-request')
 jest.deepUnmock('../../../server/db')
 let server
 
@@ -15,7 +17,7 @@ describe('Integration tests - /floodrisk', () => {
   })
 
   const urls = [
-    '/floodrisk/391416/102196/20'
+    '/floodrisk/564228/263339/20'
   ]
 
   urls.forEach((url) => {
