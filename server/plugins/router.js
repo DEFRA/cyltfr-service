@@ -1,6 +1,5 @@
 const routes = [].concat(
   require('../routes/risk'),
-  require('../routes/is-england'),
   require('../routes/error'),
   require('../routes/healthcheck')
 )
