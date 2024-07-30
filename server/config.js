@@ -1,12 +1,5 @@
 const joi = require('joi')
 
-function readConfigFile () {
-  const fileValues = require('../config/server.json')
-  Object.keys(fileValues).forEach(function (key) {
-    config[key] = fileValues[key]
-  })
-}
-
 // Define config schema
 const schema = joi.object().keys({
   env: joi.string().default('dev').valid('dev', 'test', 'prod-green', 'prod-blue'),
@@ -23,17 +16,9 @@ const config = {
 }
 
 // Validate config
-let result = schema.validate(config, {
+const result = schema.validate(config, {
   abortEarly: false
 })
-
-if (result.error) {
-  // read from config file
-  readConfigFile()
-  result = schema.validate(config, {
-    abortEarly: false
-  })
-}
 
 // Throw if config is invalid
 if (result.error) {
