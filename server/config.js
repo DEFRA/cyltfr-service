@@ -21,7 +21,9 @@ const config = {
   env: process.env.NODE_ENV,
   host: process.env.RISK_SERVICE_HOST,
   port: process.env.PORT,
-  db: process.env.DB_SERVER
+  db: process.env.DB_SERVER,
+  esriClientId: process.env.ESRI_CLIENT_ID,
+  esriClientSecret: process.env.ESRI_CLIENT_SECRET
 }
 
 // Validate config
