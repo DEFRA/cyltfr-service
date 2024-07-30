@@ -29,12 +29,6 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
-  // test('/floodrisk/{x}/{y}/{radius} - Throws db error', async () => {
-  //   riskQuery.riskQuery.mockImplementationOnce(() => { throw new Error('Mock Error') })
-  //   const response = await server.inject(options)
-  //   expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_BAD_REQUEST)
-  // })
-
   test('/floodrisk/{x}/{y}/{radius} - No db result', async () => {
     riskQuery._queryResult(undefined)
 
