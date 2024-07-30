@@ -69,7 +69,7 @@ module.exports = {
         } else {
           reservoirWetRisk = riskQueryResult.wetReservoirs
         }
-        if ((riskQueryResult.riversAndSea) && (riskQueryResult.riversAndSea[0])) {
+        if ((riskQueryResult.riversAndSea?.[0])) {
           riverAndSeaRisk = {
             probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band
           }
