@@ -7,7 +7,8 @@ const schema = joi.object().keys({
   port: joi.number().integer().default(3000), // NOSONAR
   db: joi.string().required(),
   esriClientId: joi.string().required(),
-  esriClientSecret: joi.string().required()
+  esriClientSecret: joi.string().required(),
+  riskDataUrl: joi.string().required()
 })
 
 const config = {
@@ -16,7 +17,8 @@ const config = {
   port: process.env.PORT,
   db: process.env.DB_SERVER,
   esriClientId: process.env.ESRI_CLIENT_ID,
-  esriClientSecret: process.env.ESRI_CLIENT_SECRET
+  esriClientSecret: process.env.ESRI_CLIENT_SECRET,
+  riskDataUrl: process.env.RISK_DATA_URL
 }
 
 // Validate config

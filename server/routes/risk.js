@@ -2,6 +2,18 @@ const joi = require('joi')
 const boom = require('@hapi/boom')
 const service = require('../services')
 const { riskQuery } = require('../services/riskQuery')
+const RiskOverrideLevels = [
+  'very low',
+  'low',
+  'medium',
+  'high'
+]
+const RiskLevels = [
+  'Very Low',
+  'Low',
+  'Medium',
+  'High'
+]
 
 module.exports = {
   method: 'GET',
@@ -99,7 +111,22 @@ module.exports = {
           reservoirWetRisk,
           riverAndSeaRisk,
           surfaceWaterRisk: riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
-          extraInfo: risk.extra_info // this will be done in another ticket for the data service
+          extraInfo: riskQueryResult.extrainfo
+        }
+
+        if (response.extraInfo !== 'Error') {
+          if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
+            response.extraInfo.forEach(item => {
+              if (!(item.riskoverride == null)) {
+                if (item.apply === 'holding') {
+                  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+                  if (riskOverride >= 0) {
+                    response.surfaceWaterRisk = RiskLevels[riskOverride]
+                  }
+                }
+              }
+            })
+          }
         }
 
         return response
