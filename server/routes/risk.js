@@ -1,6 +1,5 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
-const service = require('../services')
 const { riskQuery } = require('../services/riskQuery')
 const RiskOverrideLevels = [
   'very low',
@@ -24,20 +23,13 @@ module.exports = {
       const params = request.params
 
       try {
-        const result = await service.calculateFloodRisk(params.x, params.y, params.radius)
         const riskQueryResult = await riskQuery(params.x, params.y)
 
         /*
         * Do some assertions around the result we get back from the database
         */
-        if (!riskQueryResult || !Array.isArray(result.rows) || result.rows.length !== 1) {
-          return boom.badRequest('Invalid result', new Error('Expected an Array'))
-        }
-
-        const risk = result.rows[0].calculate_flood_risk // this can be removed data service ticket is complete
-
-        if (!risk) {
-          return boom.badRequest('Invalid result', new Error('Missing calculate_flood_risk key')) // this can be removed data service ticket is complete
+        if (!riskQueryResult) {
+          return boom.badRequest('Invalid result', new Error('Invalid query response'))
         }
 
         /*
@@ -48,7 +40,7 @@ module.exports = {
         let reservoirWetRisk = null
         let riverAndSeaRisk = null
 
-        if (riskQueryResult.dryReservoirs.length > 0) {
+        if (riskQueryResult.dryReservoirs?.length > 0) {
           reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
             return {
               reservoirName: item.attributes.reservoir,
@@ -63,7 +55,7 @@ module.exports = {
           reservoirDryRisk = riskQueryResult.dryReservoirs
         }
 
-        if (riskQueryResult.wetReservoirs.length > 0) {
+        if (riskQueryResult.wetReservoirs?.length > 0) {
           reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
             return {
               reservoirName: item.attributes.RESERVOIR,
@@ -77,7 +69,7 @@ module.exports = {
         } else {
           reservoirWetRisk = riskQueryResult.wetReservoirs
         }
-        if (riskQueryResult.riversAndSea[0]) {
+        if ((riskQueryResult.riversAndSea) && (riskQueryResult.riversAndSea[0])) {
           riverAndSeaRisk = {
             probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band
           }
@@ -85,16 +77,16 @@ module.exports = {
 
         let isGroundwaterArea = false
         const floodAlertList = []
-        riskQueryResult.floodAlertAreas.forEach((area) => {
+        riskQueryResult.floodAlertAreas?.forEach((area) => {
           floodAlertList.push(area.attributes.FWS_TACODE)
         })
         const floodWarningList = []
-        riskQueryResult.floodWarningAreas.forEach((area) => {
+        riskQueryResult.floodWarningAreas?.forEach((area) => {
           floodWarningList.push(area.attributes.FWS_TACODE)
         })
 
-        const floodAlertAreas = Array.isArray(floodAlertList) ? floodAlertList : []
-        const floodWarningAreas = Array.isArray(floodWarningList) ? floodWarningList : []
+        const floodAlertAreas = floodAlertList
+        const floodWarningAreas = floodWarningList
         const fifthChar = 5
 
         if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
@@ -102,7 +94,7 @@ module.exports = {
         }
 
         const response = {
-          inEngland: risk.in_england, // this will be done in another ticket for the data service
+          inEngland: true, // this will be done in another ticket for the data service
           isGroundwaterArea,
           floodAlertAreas,
           floodWarningAreas,
@@ -110,7 +102,7 @@ module.exports = {
           reservoirDryRisk,
           reservoirWetRisk,
           riverAndSeaRisk,
-          surfaceWaterRisk: riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
+          surfaceWaterRisk: Array.isArray(riskQueryResult.surfaceWater) && riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
           extraInfo: riskQueryResult.extrainfo
         }
 

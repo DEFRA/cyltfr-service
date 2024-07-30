@@ -11,7 +11,6 @@
     "start": "node index.js",
     "test": "npm run test:lint && npm run test:jest",
     "test:jest": "jest --no-cache  --detectOpenHandles --runInBand --forceExit  --collectCoverage server/",
-    "test:integration": "jest --no-cache  --detectOpenHandles --runInBand --forceExit test/integration/",
     "test:lint": "standard",
     "pre-commit": "npm run test && lint-staged",
     "container:build": "docker build -t cyltfr-risk-service --target production .",
