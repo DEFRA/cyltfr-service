@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DB_SERVER: unittest
+      ESRI_CLIENT_ID: unittest
+      ESRI_CLIENT_SECRET: unittest
     
     steps:
       - name: Checkout repository
