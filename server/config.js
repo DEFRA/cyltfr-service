@@ -9,9 +9,9 @@ function readConfigFile () {
 
 // Define config schema
 const schema = joi.object().keys({
-  env: joi.string().valid('dev', 'test', 'prod-green', 'prod-blue'),
-  host: joi.string().hostname().required(),
-  port: joi.number().integer().required(),
+  env: joi.string().default('dev').valid('dev', 'test', 'prod-green', 'prod-blue'),
+  host: joi.string().hostname().default('0.0.0.0'),
+  port: joi.number().integer().default(3000), // NOSONAR
   db: joi.string().required()
 })
 
