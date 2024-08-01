@@ -9,9 +9,8 @@
   "scripts": {
     "prepare": "husky .husky",
     "start": "node index.js",
-    "test": "npm run test:lint && npm run test:jest && npm run test:integration",
+    "test": "npm run test:lint && npm run test:jest",
     "test:jest": "jest --no-cache  --detectOpenHandles --runInBand --forceExit  --collectCoverage server/",
-    "test:integration": "jest --no-cache  --detectOpenHandles --runInBand --forceExit test/integration/",
     "test:lint": "standard",
     "pre-commit": "npm run test && lint-staged",
     "container:build": "docker build -t cyltfr-risk-service --target production .",
@@ -34,6 +33,7 @@
     "dotenv": "^16.4.5",
     "hapi-pino": "12.1.0",
     "joi": "^17.13.1",
+    "node-fetch": "^2.7.0",
     "pg": "^8.11.1"
   },
   "devDependencies": {

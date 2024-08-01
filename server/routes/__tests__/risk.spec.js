@@ -1,6 +1,6 @@
 const STATUS_CODES = require('http2').constants
 const createServer = require('../../../server')
-const db = require('../../db')
+const riskQuery = require('../../services/riskQuery')
 const testData = require('./__test_data__/')
 const options = {
   method: 'GET',
@@ -9,7 +9,7 @@ const options = {
 
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
-jest.mock('../../db')
+jest.mock('../../services/riskQuery')
 let server
 
 describe('Unit tests - /floodrisk', () => {
@@ -23,46 +23,59 @@ describe('Unit tests - /floodrisk', () => {
   })
 
   test('Normal get returns the payload', async () => {
-    const inputData = testData.getEmptyData()
-    db._queryResult(inputData)
+    riskQuery._queryResult(testData.getEmptyData())
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
-  test('/floodrisk/{x}/{y}/{radius} - Throws db error', async () => {
-    db.query.mockImplementationOnce(() => { throw new Error('Mock Error') })
-    const response = await server.inject(options)
-    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_BAD_REQUEST)
-  })
-
   test('/floodrisk/{x}/{y}/{radius} - No db result', async () => {
-    db._queryResult([])
+    riskQuery._queryResult(undefined)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_BAD_REQUEST)
   })
 
   test('/floodrisk/{x}/{y}/{radius} - Valid db result', async () => {
-    const inputData = testData.getValidData()
-    db._queryResult(inputData)
+    riskQuery._queryResult(testData.getValidData())
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
-  test('/floodrisk/{x}/{y}/{radius} - Invalid db result', async () => {
-    db._queryResult([{ error_result: '' }])
+  test('/floodrisk/{x}/{y}/{radius} - Exception raised during call', async () => {
+    riskQuery.riskQuery.mockImplementationOnce(() => {
+      return Promise.reject(new Error('Issue with Promise.all call: Mock error'))
+    })
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_BAD_REQUEST)
   })
 
-  test('/floodrisk/{x}/{y}/{radius} - Groundwater alert result', async () => {
+  test('/floodrisk/{x}/{y}/{radius} - Empty Groundwater alert result', async () => {
     const inputData = testData.getValidData()
     // Clear out the warning data
-    inputData[0].calculate_flood_risk.flood_warning_area = null
-    db._queryResult(inputData)
+    inputData.floodWarningAreas = null
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('/floodrisk/{x}/{y}/{radius} - Empty Groundwater warning result', async () => {
+    const inputData = testData.getValidData()
+    // Clear out the alert data
+    inputData.floodAlertAreas = null
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('/floodrisk/{x}/{y}/{radius} - Groundwater alert result', async () => {
+    const inputData = testData.getValidData()
+    inputData.floodAlertAreas[0].attributes.FWS_TACODE = '033WAG204'
+    riskQuery._queryResult(inputData)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
@@ -70,24 +83,8 @@ describe('Unit tests - /floodrisk', () => {
 
   test('/floodrisk/{x}/{y}/{radius} - Groundwater warning result', async () => {
     const inputData = testData.getValidData()
-    // Clear out the alert data
-    inputData[0].calculate_flood_risk.flood_alert_area = null
-    db._queryResult(inputData)
-
-    const response = await server.inject(options)
-    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
-  })
-
-  test('/floodrisk/{x}/{y}/{radius} - Groundwater area error', async () => {
-    db._queryResult([
-      {
-        calculate_flood_risk: {
-          in_england: true,
-          flood_alert_area: 'Error',
-          flood_warning_area: 'Error'
-        }
-      }
-    ])
+    inputData.floodWarningAreas[0].attributes.FWS_TACODE = '033WAG204'
+    riskQuery._queryResult(inputData)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
@@ -95,8 +92,8 @@ describe('Unit tests - /floodrisk', () => {
 
   test('/floodrisk/{x}/{y}/{radius} - Extra info error', async () => {
     const inputData = testData.getValidData()
-    inputData[0].calculate_flood_risk.extra_info = 'Error'
-    db._queryResult(inputData)
+    inputData.extrainfo = 'Error'
+    riskQuery._queryResult(inputData)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
@@ -105,11 +102,11 @@ describe('Unit tests - /floodrisk', () => {
   test('/floodrisk/{x}/{y}/{radius} - Extra info result', async () => {
     const inputData = testData.getValidData()
     // The extra info contains a surface water override that will change the High to Low
-    inputData[0].calculate_flood_risk.extra_info = testData.getExtraInfo()
-    db._queryResult(inputData)
+    inputData.extrainfo = testData.getExtraInfo()
+    riskQuery._queryResult(inputData)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
-    expect(response.payload).toMatch('"surfaceWaterRisk":"High"')
+    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 })
