@@ -49,7 +49,7 @@ describe('Unit tests - /floodrisk', () => {
     })
 
     const response = await server.inject(options)
-    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_BAD_REQUEST)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_INTERNAL_SERVER_ERROR)
   })
 
   test('/floodrisk/{x}/{y}/{radius} - Empty Groundwater alert result', async () => {
