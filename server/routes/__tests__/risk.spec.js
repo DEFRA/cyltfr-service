@@ -109,4 +109,21 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
     expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
+
+  test('/floodrisk/{x}/{y}/{radius} - riverAndSeaRisk with valid Risk_band', async () => {
+    const inputData = testData.getValidData()
+    inputData.riversAndSea = [
+      {
+        attributes: {
+          Risk_band: 'Very Low'
+        }
+      }
+    ]
+
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"probabilityForBand":"Very Low"')
+  })
 })
