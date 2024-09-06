@@ -69,8 +69,9 @@ module.exports = {
         reservoirWetRisk = riskQueryResult.wetReservoirs
       }
       if (riskQueryResult.riversAndSea?.[0]) {
+        const riskBand = riskQueryResult.riversAndSea[0].attributes.Risk_band
         riverAndSeaRisk = {
-          probabilityForBand: riskQueryResult.riversAndSea[0].attributes.Risk_band
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
         }
       }
 
