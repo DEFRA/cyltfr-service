@@ -1,6 +1,7 @@
 const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
 const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
 const { riskData } = require('./riskData')
+const { performance } = require('node:perf_hooks')
 const config = require('../config')
 
 const appManager = ApplicationCredentialsManager.fromCredentials({
@@ -60,20 +61,28 @@ const esriQueries = [
 
 const riskQuery = async (x, y) => {
   const featureLayers = {}
+  const queryKey = performance.now()
   const manager = await appManager.refreshToken()
+  const tokenRefreshTime = performance.now() - queryKey
   const queries = []
   esriQueries.forEach(query => {
     queries.push({
       esriCall: true,
       key: query.key,
       url: query.url,
-      outfields: query.outfields
+      outfields: query.outfields,
+      startTime: performance.now(),
+      endTime: 0,
+      queryKey
     })
   })
   queries.push({
     esriCall: false,
     key: 'extrainfo',
-    url: `${config.riskDataUrl}/${x}/${y}`
+    url: `${config.riskDataUrl}/${x}/${y}`,
+    startTime: performance.now(),
+    endTime: 0,
+    queryKey
   })
   const geometry = {
     x,
@@ -97,9 +106,36 @@ const riskQuery = async (x, y) => {
           returnGeometry,
           authentication: manager,
           outFields: query.outFields || undefined
+        }).then((result) => {
+          return new Promise((resolve, reject) => {
+            const retval = { ...result }
+            const perfData = {}
+            perfData.startTime = query.startTime
+            perfData.endTime = performance.now()
+            perfData.timeTaken = perfData.endTime - perfData.startTime
+            perfData.url = query.url
+            perfData.key = query.key
+            perfData.uniqueQueryId = query.queryKey
+            console.log(perfData)
+            resolve(retval)
+          })
         })
       } else {
-        return riskData(query.url)
+        return riskData(query.url).then(
+          (result) => {
+            return new Promise((resolve, reject) => {
+              const retval = { ...result }
+              const perfData = {}
+              perfData.startTime = query.startTime
+              perfData.endTime = performance.now()
+              perfData.timeTaken = perfData.endTime - perfData.startTime
+              perfData.url = query.url
+              perfData.key = query.key
+              perfData.uniqueQueryId = query.queryKey
+              console.log(perfData)
+              resolve(retval)
+            })
+          })
       }
     }))
     results.forEach((result, index) => {
@@ -109,6 +145,7 @@ const riskQuery = async (x, y) => {
         featureLayers[queries[index].key] = result
       }
     })
+    console.log('Token refresh time : %d', tokenRefreshTime)
   } catch (err) {
     throw new Error(`Issue with Promise.all call: ${err.message}`)
   }
