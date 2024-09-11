@@ -60,7 +60,10 @@ const esriQueries = [
 
 const riskQuery = async (x, y) => {
   const featureLayers = {}
-  const manager = await appManager.refreshToken()
+  let esriToken = appManager.token
+  if ((!esriToken) || (appManager.expires < Date.now())) {
+    esriToken = await appManager.refreshToken()
+  }
   const queries = []
   esriQueries.forEach(query => {
     queries.push({
@@ -95,7 +98,7 @@ const riskQuery = async (x, y) => {
           geometryType,
           spatialRel,
           returnGeometry,
-          authentication: manager,
+          authentication: esriToken,
           outFields: query.outFields || undefined
         })
       } else {
