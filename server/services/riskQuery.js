@@ -22,13 +22,13 @@ const outFields = 'Risk_band' // used to specify property wanted
 const esriQueries = [
   {
     esriCall: true,
-    key: 'wetReservoirs',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.wetReservoirsLayer}`
+    key: 'dryReservoirs',
+    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.dryReservoirsLayer}`
   },
   {
     esriCall: true,
-    key: 'dryReservoirs',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.dryReservoirsLayer}`
+    key: 'wetReservoirs',
+    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.wetReservoirsLayer}`
   },
   {
     esriCall: true,
@@ -61,9 +61,13 @@ const esriQueries = [
 
 const riskQuery = async (x, y) => {
   const featureLayers = {}
-  const queryKey = performance.now()
-  const manager = await appManager.refreshToken()
-  const tokenRefreshTime = performance.now() - queryKey
+  const tokenStartTime = performance.now()
+  let esriToken = appManager.token
+  if ((!esriToken) || (appManager.expires < Date.now())) {
+    esriToken = await appManager.refreshToken()
+  }
+  const allPerfData = []
+  const tokenRefreshTime = performance.now() - tokenStartTime
   const queries = []
   esriQueries.forEach(query => {
     queries.push({
@@ -72,8 +76,7 @@ const riskQuery = async (x, y) => {
       url: query.url,
       outfields: query.outfields,
       startTime: performance.now(),
-      endTime: 0,
-      queryKey
+      endTime: 0
     })
   })
   queries.push({
@@ -81,8 +84,7 @@ const riskQuery = async (x, y) => {
     key: 'extrainfo',
     url: `${config.riskDataUrl}/${x}/${y}`,
     startTime: performance.now(),
-    endTime: 0,
-    queryKey
+    endTime: 0
   })
   const geometry = {
     x,
@@ -104,7 +106,7 @@ const riskQuery = async (x, y) => {
           geometryType,
           spatialRel,
           returnGeometry,
-          authentication: manager,
+          authentication: esriToken,
           outFields: query.outFields || undefined
         }).then((result) => {
           return new Promise((resolve, reject) => {
@@ -115,8 +117,7 @@ const riskQuery = async (x, y) => {
             perfData.timeTaken = perfData.endTime - perfData.startTime
             perfData.url = query.url
             perfData.key = query.key
-            perfData.uniqueQueryId = query.queryKey
-            console.log(perfData)
+            allPerfData.push(perfData)
             resolve(retval)
           })
         })
@@ -131,8 +132,7 @@ const riskQuery = async (x, y) => {
               perfData.timeTaken = perfData.endTime - perfData.startTime
               perfData.url = query.url
               perfData.key = query.key
-              perfData.uniqueQueryId = query.queryKey
-              console.log(perfData)
+              allPerfData.push(perfData)
               resolve(retval)
             })
           })
@@ -145,7 +145,8 @@ const riskQuery = async (x, y) => {
         featureLayers[queries[index].key] = result
       }
     })
-    console.log('Token refresh time : %d', tokenRefreshTime)
+    console.log(JSON.stringify(allPerfData))
+    // console.log('Token refresh time : %d', tokenRefreshTime)
   } catch (err) {
     throw new Error(`Issue with Promise.all call: ${err.message}`)
   }
