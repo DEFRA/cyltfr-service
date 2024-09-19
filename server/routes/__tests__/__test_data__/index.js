@@ -1,5 +1,4 @@
 const validDataRow = {
-  in_england: true,
   floodAlertAreas: [
     {
       attributes: {
@@ -53,7 +52,6 @@ const validDataRow = {
   extrainfo: null
 }
 const emptyDataRow = {
-  in_england: true,
   floodAlertAreas: null,
   floodWarningAreas: null,
   riversAndSea: null,

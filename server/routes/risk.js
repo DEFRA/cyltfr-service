@@ -94,7 +94,6 @@ module.exports = {
       }
 
       const response = {
-        inEngland: true, // this will be done in another ticket for the data service
         isGroundwaterArea,
         floodAlertAreas,
         floodWarningAreas,
