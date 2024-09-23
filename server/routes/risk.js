@@ -38,6 +38,7 @@ module.exports = {
       let reservoirDryRisk = null
       let reservoirWetRisk = null
       let riverAndSeaRisk = null
+      let riverAndSeaCCRisk = null
 
       if (riskQueryResult.dryReservoirs?.length > 0) {
         reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
@@ -74,6 +75,12 @@ module.exports = {
           probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
         }
       }
+      if (riskQueryResult.riversAndSeaCC?.[0]) {
+        const riskBand = riskQueryResult.riversAndSeaCC[0].attributes.Risk_band
+        riverAndSeaCCRisk = {
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
+        }
+      }
 
       let isGroundwaterArea = false
       const floodAlertList = []
@@ -101,7 +108,9 @@ module.exports = {
         reservoirDryRisk,
         reservoirWetRisk,
         riverAndSeaRisk,
+        riverAndSeaCCRisk,
         surfaceWaterRisk: Array.isArray(riskQueryResult.surfaceWater) && riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
+        surfaceWaterRiskCC: Array.isArray(riskQueryResult.surfaceWaterCC) && riskQueryResult.surfaceWaterCC[0] ? riskQueryResult.surfaceWaterCC[0].attributes.Risk_band : undefined,
         extraInfo: riskQueryResult.extrainfo
       }
 

@@ -14,7 +14,9 @@ const layer = {
   floodWarningAreasLayer: 3,
   llfaLayer: 4,
   surfaceWaterLayer: 0,
-  riversAndSeaLayer: 0
+  riversAndSeaLayer: 0,
+  surfaceWaterCCLayer: 0,
+  riversAndSeaCCLayer: 0
 }
 
 const outFields = 'Risk_band' // used to specify property wanted
@@ -52,8 +54,20 @@ const esriQueries = [
   },
   {
     esriCall: true,
+    key: 'riversAndSeaCC',
+    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/${layer.riversAndSeaCCLayer}`,
+    outFields
+  },
+  {
+    esriCall: true,
     key: 'surfaceWater',
     url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/${layer.surfaceWaterLayer}`,
+    outFields
+  },
+  {
+    esriCall: true,
+    key: 'surfaceWaterCC',
+    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_CCSW3_Depth_0mm/FeatureServer/${layer.surfaceWaterCCLayer}`,
     outFields
   }
 ]
@@ -82,7 +96,7 @@ const riskQuery = async (x, y) => {
     x,
     y,
     spatialReference: {
-      wkid: 27000
+      wkid: 27700
     }
   }
   const geometryType = 'esriGeometryPoint'
