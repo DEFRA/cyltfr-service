@@ -7,7 +7,7 @@ const llfaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/s
 const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/0'
 const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
 
-const queryFeatures = ({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
+const queryFeatures = jest.fn(({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
   // check authentication
   checkCredentials(authentication)
 
@@ -61,7 +61,7 @@ const queryFeatures = ({ url, geometry, _geometryType, _spatialRel, _returnGeome
   }
 
   return {}
-}
+})
 
 const checkCredentials = (authentication) => {
   const storedToken = '1234abcd'

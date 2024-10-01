@@ -42,15 +42,15 @@ describe('riskQuery', () => {
   })
 
   describe('if API call fails', () => {
-    const queryFeatures = jest.fn()
+    const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
 
     it('should throw an error when queryFeatures queryFeatures call breaks', async () => {
       [x, y] = [123, 456]
-      queryFeatures.mockImplementation(() => {
+      queryFeatures.mockImplementationOnce(() => {
         throw new Error('Mock queryFeatures error')
       })
 
-      await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Cannot read properties of undefined')
+      await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Mock queryFeatures error')
     })
   })
 })

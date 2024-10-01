@@ -2,96 +2,22 @@ const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
 const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
 const { riskData } = require('./riskData')
 const config = require('../config')
+const riskQueries = require('./riskQueries')
+const riversSeaDepthQueries = require('./riversSeaDepth')
+const surfaceWatchDepthQueries = require('./surfaceWaterDepth')
 
 const appManager = ApplicationCredentialsManager.fromCredentials({
   clientId: config.esriClientId,
   clientSecret: config.esriClientSecret
 })
-const layer = {
-  wetReservoirsLayer: 1,
-  dryReservoirsLayer: 0,
-  floodAlertAreasLayer: 2,
-  floodWarningAreasLayer: 3,
-  llfaLayer: 4,
-  surfaceWaterLayer: 0,
-  riversAndSeaLayer: 0,
-  surfaceWaterCCLayer: 0,
-  riversAndSeaCCLayer: 0
-}
 
-const outFields = 'Risk_band' // used to specify property wanted
-const esriQueries = [
-  {
-    esriCall: true,
-    key: 'wetReservoirs',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.wetReservoirsLayer}`
-  },
-  {
-    esriCall: true,
-    key: 'dryReservoirs',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.dryReservoirsLayer}`
-  },
-  {
-    esriCall: true,
-    key: 'floodAlertAreas',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.floodAlertAreasLayer}`
-  },
-  {
-    esriCall: true,
-    key: 'floodWarningAreas',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.floodWarningAreasLayer}`
-  },
-  {
-    esriCall: true,
-    key: 'llfa',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/${layer.llfaLayer}`
-  },
-  {
-    esriCall: true,
-    key: 'riversAndSea',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_Depth/FeatureServer/${layer.riversAndSeaLayer}`,
-    outFields
-  },
-  {
-    esriCall: true,
-    key: 'riversAndSeaCC',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/${layer.riversAndSeaCCLayer}`,
-    outFields
-  },
-  {
-    esriCall: true,
-    key: 'surfaceWater',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/${layer.surfaceWaterLayer}`,
-    outFields
-  },
-  {
-    esriCall: true,
-    key: 'surfaceWaterCC',
-    url: `https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_CCSW3_Depth_0mm/FeatureServer/${layer.surfaceWaterCCLayer}`,
-    outFields
-  }
-]
-
-const riskQuery = async (x, y) => {
-  const featureLayers = {}
+async function externalQueries (x, y, queries) {
   let esriToken = appManager.token
   if ((!esriToken) || (appManager.expires < Date.now())) {
     esriToken = await appManager.refreshToken()
   }
-  const queries = []
-  esriQueries.forEach(query => {
-    queries.push({
-      esriCall: true,
-      key: query.key,
-      url: query.url,
-      outfields: query.outfields
-    })
-  })
-  queries.push({
-    esriCall: false,
-    key: 'extrainfo',
-    url: `${config.riskDataUrl}/${x}/${y}`
-  })
+  const featureLayers = {}
+
   const geometry = {
     x,
     y,
@@ -132,4 +58,45 @@ const riskQuery = async (x, y) => {
   return featureLayers
 }
 
-module.exports = { riskQuery }
+const riskQuery = async (x, y) => {
+  const queries = []
+  riskQueries.forEach(query => {
+    queries.push({
+      esriCall: true,
+      key: query.key,
+      url: query.url,
+      outfields: query.outfields
+    })
+  })
+  queries.push({
+    esriCall: false,
+    key: 'extrainfo',
+    url: `${config.riskDataUrl}/${x}/${y}`
+  })
+
+  return await externalQueries(x, y, queries)
+}
+
+const depthQueries = async (x, y, depthQueries) => {
+  const queries = []
+  depthQueries.forEach(query => {
+    queries.push({
+      esriCall: true,
+      key: query.key,
+      url: query.url,
+      outfields: query.outfields
+    })
+  })
+
+  return await externalQueries(x, y, queries)
+}
+
+const riversAndSeaDepth = async (x, y) => {
+  return depthQueries(x, y, riversSeaDepthQueries)
+}
+
+const surfaceWaterDepth = async (x, y) => {
+  return depthQueries(x, y, surfaceWatchDepthQueries)
+}
+
+module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth }
