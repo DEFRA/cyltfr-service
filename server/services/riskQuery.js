@@ -77,9 +77,9 @@ const riskQuery = async (x, y) => {
   return await externalQueries(x, y, queries)
 }
 
-const depthQueries = async (x, y, depthQueries) => {
+const depthQueries = async (x, y, dq) => {
   const queries = []
-  depthQueries.forEach(query => {
+  dq.forEach(query => {
     queries.push({
       esriCall: true,
       key: query.key,
