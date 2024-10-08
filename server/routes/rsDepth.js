@@ -18,7 +18,7 @@ module.exports = {
   method: 'GET',
   path: '/rsdepth/{x}/{y}',
   options: {
-    description: 'Get the long term flood risk associated with a point',
+    description: 'Get the Rivers and sea depth risk associated with a point',
     handler: async (request, _h) => {
       const params = request.params
 
