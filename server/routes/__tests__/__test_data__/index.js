@@ -93,24 +93,57 @@ const extraInfo = [{
   riskoverride: 'Do not override'
 }]
 
-const getTestData = function (inputData) {
-  return { ...inputData }
-}
-
 const getValidData = function () {
-  return getTestData(validDataRow)
+  return { ...validDataRow }
 }
 
 const getEmptyData = function () {
-  return getTestData(emptyDataRow)
+  return { ...emptyDataRow }
 }
 
 const getExtraInfo = function () {
   return extraInfo
 }
 
+const validRsDepth = {
+  200: {
+    current: 'High',
+    cc: 'High'
+  },
+  300: {
+    current: 'High',
+    cc: 'High'
+  },
+  600: {
+    current: 'Low',
+    cc: 'Medium'
+  }
+}
+
+const validSwDepth = {
+  200: {
+    cc: 'Low'
+  },
+  300: {
+    cc: 'Very Low'
+  },
+  600: {
+    cc: 'Very Low'
+  }
+}
+
+const getValidRsDepth = () => {
+  return { ...validRsDepth }
+}
+
+const getValidSwDepth = () => {
+  return { ...validSwDepth }
+}
+
 module.exports = {
   getValidData,
   getEmptyData,
-  getExtraInfo
+  getExtraInfo,
+  getValidRsDepth,
+  getValidSwDepth
 }
