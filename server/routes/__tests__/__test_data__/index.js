@@ -19,7 +19,16 @@ const validDataRow = {
         Risk_band: 'Medium'
       }
     }],
+  riversAndSeaCC: [
+    {
+      attributes: {
+        Risk_band: 'Medium'
+      }
+    }],
   surfaceWater: [
+    { attributes: { Risk_band: 'High' } }
+  ],
+  surfaceWaterCC: [
     { attributes: { Risk_band: 'High' } }
   ],
   dryReservoirs: [
@@ -56,6 +65,8 @@ const emptyDataRow = {
   floodWarningAreas: null,
   riversAndSea: null,
   surfaceWater: null,
+  riversAndSeaCC: null,
+  surfaceWaterCC: null,
   dryReservoirs: null,
   llfa: [
     { attributes: { name: 'Warwickshire' } }

@@ -1,4 +1,4 @@
-const { riskQuery } = require('../riskQuery')
+const { riskQuery, riversAndSeaDepth, surfaceWaterDepth } = require('../riskQuery')
 
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
@@ -51,6 +51,19 @@ describe('riskQuery', () => {
       })
 
       await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Mock queryFeatures error')
+    })
+  })
+
+  describe('Depth queries', () => {
+    test('a Rivers and Sea Depth result', async () => {
+      [x, y] = [400000, 500000]
+      const result = await riversAndSeaDepth(x, y)
+      expect(result).toMatchObject(rsDepthQuery)
+    })
+    test('a surface water Depth result', async () => {
+      [x, y] = [400000, 500000]
+      const result = await surfaceWaterDepth(x, y)
+      expect(result).toMatchObject(swDepthQuery)
     })
   })
 })
@@ -115,6 +128,98 @@ const reservoirs = {
     }
   }
   ]
+}
+
+const rsDepthQuery = {
+  riversAndSeaDepth200mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  riversAndSeaDepth300mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  riversAndSeaDepth600mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  riversAndSeaCCDepth200mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  riversAndSeaCCDepth300mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  riversAndSeaCCDepth600mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ]
+
+}
+
+const swDepthQuery = {
+  surfaceWaterDepth200mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  surfaceWaterDepth300mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  surfaceWaterDepth600mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  surfaceWaterCCDepth200mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  surfaceWaterCCDepth300mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ],
+  surfaceWaterCCDepth600mm: [
+    {
+      attributes: {
+        Risk_band: 'High'
+      }
+    }
+  ]
+
 }
 
 const returnedQuery = {
