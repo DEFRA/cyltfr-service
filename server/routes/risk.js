@@ -38,7 +38,7 @@ module.exports = {
       let reservoirDryRisk = null
       let reservoirWetRisk = null
       let riverAndSeaRisk = null
-      let riverAndSeaCCRisk = null
+      let riverAndSeaRiskCC = null
 
       if (riskQueryResult.dryReservoirs?.length > 0) {
         reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
@@ -77,7 +77,7 @@ module.exports = {
       }
       if (riskQueryResult.riversAndSeaCC?.[0]) {
         const riskBand = riskQueryResult.riversAndSeaCC[0].attributes.Risk_band
-        riverAndSeaCCRisk = {
+        riverAndSeaRiskCC = {
           probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
         }
       }
@@ -108,7 +108,7 @@ module.exports = {
         reservoirDryRisk,
         reservoirWetRisk,
         riverAndSeaRisk,
-        riverAndSeaCCRisk,
+        riverAndSeaRiskCC,
         surfaceWaterRisk: Array.isArray(riskQueryResult.surfaceWater) && riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
         surfaceWaterRiskCC: Array.isArray(riskQueryResult.surfaceWaterCC) && riskQueryResult.surfaceWaterCC[0] ? riskQueryResult.surfaceWaterCC[0].attributes.Risk_band : undefined,
         extraInfo: riskQueryResult.extrainfo
