@@ -4,6 +4,7 @@ jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
 jest.mock('../riskData')
 jest.mock('../../config', () => ({
+  dataVersion: '01',
   esriClientId: 'mock-client-id',
   esriClientSecret: 'mock-client-secret'
 }))
