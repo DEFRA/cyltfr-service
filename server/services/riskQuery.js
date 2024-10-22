@@ -74,7 +74,7 @@ async function externalQueries (x, y, queries) {
 
 const riskQuery = async (x, y) => {
   const queries = []
-  if (!riskQueriesLoaded) loadRiskQueries()
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   riskQueries.forEach(query => {
     queries.push({
       esriCall: true,
@@ -89,7 +89,7 @@ const riskQuery = async (x, y) => {
     url: `${config.riskDataUrl}/${x}/${y}`
   })
 
-  return await externalQueries(x, y, queries)
+  return externalQueries(x, y, queries)
 }
 
 const depthQueries = async (x, y, dq) => {
@@ -103,16 +103,16 @@ const depthQueries = async (x, y, dq) => {
     })
   })
 
-  return await externalQueries(x, y, queries)
+  return externalQueries(x, y, queries)
 }
 
 const riversAndSeaDepth = async (x, y) => {
-  if (!riskQueriesLoaded) loadRiskQueries()
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   return depthQueries(x, y, riversSeaDepthQueries)
 }
 
 const surfaceWaterDepth = async (x, y) => {
-  if (!riskQueriesLoaded) loadRiskQueries()
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   return depthQueries(x, y, surfaceWatchDepthQueries)
 }
 
