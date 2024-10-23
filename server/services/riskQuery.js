@@ -2,9 +2,23 @@ const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
 const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
 const { riskData } = require('./riskData')
 const config = require('../config')
-const riskQueries = require('./riskQueries')
-const riversSeaDepthQueries = require('./riversSeaDepth')
-const surfaceWatchDepthQueries = require('./surfaceWaterDepth')
+let riskQueries = []
+let riversSeaDepthQueries = []
+let surfaceWatchDepthQueries = []
+const fs = require('fs')
+const path = require('path')
+let riskQueriesLoaded = false
+
+function loadRiskQueries () {
+  const filePath = path.join('./server/services/definition/', config.dataVersion)
+  const queryData = fs.readFileSync(path.join(filePath, 'riskQueries.json'))
+  const rsData = fs.readFileSync(path.join(filePath, 'riversSeaDepth.json'))
+  const swData = fs.readFileSync(path.join(filePath, 'surfaceWaterDepth.json'))
+  riskQueries = JSON.parse(queryData)
+  riversSeaDepthQueries = JSON.parse(rsData)
+  surfaceWatchDepthQueries = JSON.parse(swData)
+  riskQueriesLoaded = true
+}
 
 const appManager = ApplicationCredentialsManager.fromCredentials({
   clientId: config.esriClientId,
@@ -60,6 +74,7 @@ async function externalQueries (x, y, queries) {
 
 const riskQuery = async (x, y) => {
   const queries = []
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   riskQueries.forEach(query => {
     queries.push({
       esriCall: true,
@@ -74,7 +89,7 @@ const riskQuery = async (x, y) => {
     url: `${config.riskDataUrl}/${x}/${y}`
   })
 
-  return await externalQueries(x, y, queries)
+  return externalQueries(x, y, queries)
 }
 
 const depthQueries = async (x, y, dq) => {
@@ -88,14 +103,16 @@ const depthQueries = async (x, y, dq) => {
     })
   })
 
-  return await externalQueries(x, y, queries)
+  return externalQueries(x, y, queries)
 }
 
 const riversAndSeaDepth = async (x, y) => {
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   return depthQueries(x, y, riversSeaDepthQueries)
 }
 
 const surfaceWaterDepth = async (x, y) => {
+  if (!riskQueriesLoaded) { loadRiskQueries() }
   return depthQueries(x, y, surfaceWatchDepthQueries)
 }
 
