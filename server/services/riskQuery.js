@@ -49,7 +49,7 @@ async function externalQueries (x, y, queries) {
 
   try {
     const runQueries = async () => {
-      const results = await Promise.all(queries.map(query => {
+      const qRes = await Promise.all(queries.map(query => {
         if (query.esriCall) {
           return queryFeatures({
             url: query.url,
@@ -64,7 +64,7 @@ async function externalQueries (x, y, queries) {
           return riskData(query.url)
         }
       }))
-      return results
+      return qRes
     }
     let results
     try {
