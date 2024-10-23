@@ -1,4 +1,4 @@
-const { riskQuery, riversAndSeaDepth, surfaceWaterDepth } = require('../riskQuery')
+const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
 
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
@@ -52,6 +52,27 @@ describe('riskQuery', () => {
       })
 
       await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Mock queryFeatures error')
+    })
+  })
+
+  describe('API call fails due to invalid token', () => {
+    const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
+
+    it('should refresh the token when an Invalid token error occurs', async () => {
+      [x, y] = [460121, 431744]
+      const oldToken = await _currentToken()
+      queryFeatures.mockImplementationOnce(() => {
+        throw new Error('498: Invalid token.')
+      })
+      const result = await riskQuery(x, y)
+      expect(result).toEqual(expect.objectContaining({
+        wetReservoirs: reservoirs.wet,
+        dryReservoirs: reservoirs.dry,
+        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        surfaceWater: []
+      }))
+
+      await expect(oldToken).not.toEqual(await _currentToken())
     })
   })
 
