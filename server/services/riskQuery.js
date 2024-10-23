@@ -25,6 +25,10 @@ const appManager = ApplicationCredentialsManager.fromCredentials({
   clientSecret: config.esriClientSecret
 })
 
+async function _currentToken () {
+  return appManager.token
+}
+
 async function externalQueries (x, y, queries) {
   let esriToken = appManager.token
   if ((!esriToken) || (appManager.expires < Date.now())) {
@@ -44,21 +48,35 @@ async function externalQueries (x, y, queries) {
   const returnGeometry = 'false'
 
   try {
-    const results = await Promise.all(queries.map(query => {
-      if (query.esriCall) {
-        return queryFeatures({
-          url: query.url,
-          geometry,
-          geometryType,
-          spatialRel,
-          returnGeometry,
-          authentication: esriToken,
-          outFields: query.outFields || undefined
-        })
+    const runQueries = async () => {
+      const results = await Promise.all(queries.map(query => {
+        if (query.esriCall) {
+          return queryFeatures({
+            url: query.url,
+            geometry,
+            geometryType,
+            spatialRel,
+            returnGeometry,
+            authentication: esriToken,
+            outFields: query.outFields || undefined
+          })
+        } else {
+          return riskData(query.url)
+        }
+      }))
+      return results
+    }
+    let results
+    try {
+      results = await runQueries()
+    } catch (err) {
+      if (err.message === '498: Invalid token.') {
+        esriToken = await appManager.refreshToken()
+        results = await runQueries()
       } else {
-        return riskData(query.url)
+        throw err
       }
-    }))
+    }
     results.forEach((result, index) => {
       if (queries[index].esriCall) {
         featureLayers[queries[index].key] = result.features
@@ -116,4 +134,4 @@ const surfaceWaterDepth = async (x, y) => {
   return depthQueries(x, y, surfaceWatchDepthQueries)
 }
 
-module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth }
+module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken }
