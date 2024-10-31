@@ -7,7 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DB_SERVER: unittest
+      RISK_DATA_URL: unittest
+      ESRI_CLIENT_ID: unittest
+      ESRI_CLIENT_SECRET: unittest
     
     steps:
       - name: Checkout repository

@@ -5,14 +5,20 @@ const schema = joi.object().keys({
   env: joi.string().default('dev').valid('dev', 'test', 'prod-green', 'prod-blue'),
   host: joi.string().hostname().default('0.0.0.0'),
   port: joi.number().integer().default(3000), // NOSONAR
-  db: joi.string().required()
+  dataVersion: joi.string().default('01'),
+  esriClientId: joi.string().required(),
+  esriClientSecret: joi.string().required(),
+  riskDataUrl: joi.string().required()
 })
 
 const config = {
   env: process.env.NODE_ENV,
   host: process.env.RISK_SERVICE_HOST,
   port: process.env.PORT,
-  db: process.env.DB_SERVER
+  dataVersion: process.env.DATA_VERSION,
+  esriClientId: process.env.ESRI_CLIENT_ID,
+  esriClientSecret: process.env.ESRI_CLIENT_SECRET,
+  riskDataUrl: process.env.RISK_DATA_URL
 }
 
 // Validate config

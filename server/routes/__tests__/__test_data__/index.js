@@ -1,42 +1,77 @@
 const validDataRow = {
-  in_england: true,
-  flood_alert_area: [
-    '033WAF204'
-  ],
-  flood_warning_area: [
-    '033FWF3AVON013'
-  ],
-  rofrs_risk: {
-    prob_4band: 'Medium',
-    suitability: 'Street to Parcels of land',
-    risk_for_insurance_sop: 'Yes'
-  },
-  surface_water_risk: 'High',
-  reservoir_risk: [
+  floodAlertAreas: [
     {
-      resname: 'Draycote Water',
-      risk_desig: 'High Risk',
-      location: '445110, 270060',
-      ut_company: 'Severn Trent Water Authority',
-      ea_area: 'Environment Agency - Staffordshire, Warwickshire and West Midlands',
-      llfa_name: 'Warwickshire',
-      comments: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority'
+      attributes: {
+        FWS_TACODE: '033WAF204'
+      }
     }
   ],
-  surface_water_suitability: 'County to Town',
-  lead_local_flood_authority: 'Warwickshire',
-  extra_info: null
+  floodWarningAreas: [
+    {
+      attributes: {
+        FWS_TACODE: '033WAF204'
+      }
+    }
+  ],
+  riversAndSea: [
+    {
+      attributes: {
+        Risk_band: 'Medium'
+      }
+    }],
+  riversAndSeaCC: [
+    {
+      attributes: {
+        Risk_band: 'Medium'
+      }
+    }],
+  surfaceWater: [
+    { attributes: { Risk_band: 'High' } }
+  ],
+  surfaceWaterCC: [
+    { attributes: { Risk_band: 'High' } }
+  ],
+  dryReservoirs: [
+    {
+      attributes: {
+        reservoir: 'Draycote Water',
+        risk_designation: 'High Risk',
+        ngr: '445110, 270060',
+        undertaker: 'Severn Trent Water Authority',
+        llfa_name: 'Warwickshire',
+        comments: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority'
+      }
+    }],
+  wetReservoirs: [
+    {
+      attributes: {
+        reservoir: 'Draycote Water',
+        risk_designation: 'High Risk',
+        ngr: '445110, 270060',
+        undertaker: 'Severn Trent Water Authority',
+        llfa_name: 'Warwickshire',
+        comments: 'If you have questions about local emergency plans for this reservoir you should contact the named Local Authority'
+      }
+    }
+
+  ],
+  llfa: [
+    { attributes: { name: 'Warwickshire' } }
+  ],
+  extrainfo: null
 }
 const emptyDataRow = {
-  in_england: true,
-  flood_alert_area: null,
-  flood_warning_area: null,
-  rofrs_risk: null,
-  surface_water_risk: 'Very Low',
-  reservoir_risk: null,
-  surface_water_suitability: 'County to Town',
-  lead_local_flood_authority: 'Cheshire West and Chester',
-  extra_info: null
+  floodAlertAreas: null,
+  floodWarningAreas: null,
+  riversAndSea: null,
+  surfaceWater: null,
+  riversAndSeaCC: null,
+  surfaceWaterCC: null,
+  dryReservoirs: null,
+  llfa: [
+    { attributes: { name: 'Warwickshire' } }
+  ],
+  extrainfo: null
 }
 const extraInfo = [{
   info: '',
@@ -69,28 +104,57 @@ const extraInfo = [{
   riskoverride: 'Do not override'
 }]
 
-const getTestData = function (inputData) {
-  return [
-    {
-      calculate_flood_risk: { ...inputData }
-    }
-  ]
-}
-
 const getValidData = function () {
-  return getTestData(validDataRow)
+  return { ...validDataRow }
 }
 
 const getEmptyData = function () {
-  return getTestData(emptyDataRow)
+  return { ...emptyDataRow }
 }
 
 const getExtraInfo = function () {
   return extraInfo
 }
 
+const validRsDepth = {
+  200: {
+    current: 'High',
+    cc: 'High'
+  },
+  300: {
+    current: 'High',
+    cc: 'High'
+  },
+  600: {
+    current: 'Low',
+    cc: 'Medium'
+  }
+}
+
+const validSwDepth = {
+  200: {
+    cc: 'Low'
+  },
+  300: {
+    cc: 'Very Low'
+  },
+  600: {
+    cc: 'Very Low'
+  }
+}
+
+const getValidRsDepth = () => {
+  return { ...validRsDepth }
+}
+
+const getValidSwDepth = () => {
+  return { ...validSwDepth }
+}
+
 module.exports = {
   getValidData,
   getEmptyData,
-  getExtraInfo
+  getExtraInfo,
+  getValidRsDepth,
+  getValidSwDepth
 }
