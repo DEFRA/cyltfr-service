@@ -1,13 +1,17 @@
 const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
-
+jest.mock('../../config')
+jest.mock('node-fetch')
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
-jest.mock('../riskData')
-jest.mock('../../config', () => ({
-  dataVersion: '01',
-  esriClientId: 'mock-client-id',
-  esriClientSecret: 'mock-client-secret'
-}))
+// jest.mock('../riskData')
+const config = require('../../config')
+
+beforeAll(async () => {
+})
+
+afterAll(async () => {
+  config.setConfigOptions({ performanceLogging: false })
+})
 
 describe('riskQuery', () => {
   let x, y
@@ -86,6 +90,15 @@ describe('riskQuery', () => {
       [x, y] = [400000, 500000]
       const result = await surfaceWaterDepth(x, y)
       expect(result).toMatchObject(swDepthQuery)
+    })
+  })
+
+  describe('Queries with performance logging', () => {
+    config.setConfigOptions({ performanceLogging: true })
+    test('a Rivers and Sea Depth result', async () => {
+      [x, y] = [400000, 500000]
+      const result = await riversAndSeaDepth(x, y)
+      expect(result).toMatchObject(rsDepthQuery)
     })
   })
 })

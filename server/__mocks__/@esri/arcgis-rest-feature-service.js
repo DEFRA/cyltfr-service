@@ -9,7 +9,7 @@ const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgi
 const riversAndSeaCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/0'
 const surfaceWaterCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_CCSW3_Depth_0mm/FeatureServer/0'
 
-const queryFeatures = jest.fn(({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
+const queryFeatures = jest.fn(async ({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
   // check authentication
   checkCredentials(authentication)
 
