@@ -144,7 +144,7 @@ async function externalQueries (x, y, queries) {
       }
     })
     if (config.performanceLogging) {
-      console.log('Token refresh time : %d', tokenRefreshTime)
+      console.log('{"TokenRefreshTime" : %d}', tokenRefreshTime)
       console.log(JSON.stringify(allPerfData))
     }
   } catch (err) {
