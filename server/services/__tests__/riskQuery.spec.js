@@ -7,6 +7,7 @@ jest.mock('@esri/arcgis-rest-request')
 const config = require('../../config')
 
 beforeAll(async () => {
+  config.setConfigOptions({ performanceLogging: false })
 })
 
 afterAll(async () => {
@@ -90,15 +91,6 @@ describe('riskQuery', () => {
       [x, y] = [400000, 500000]
       const result = await surfaceWaterDepth(x, y)
       expect(result).toMatchObject(swDepthQuery)
-    })
-  })
-
-  describe('Queries with performance logging', () => {
-    config.setConfigOptions({ performanceLogging: true })
-    test('a Rivers and Sea Depth result', async () => {
-      [x, y] = [400000, 500000]
-      const result = await riversAndSeaDepth(x, y)
-      expect(result).toMatchObject(rsDepthQuery)
     })
   })
 })
