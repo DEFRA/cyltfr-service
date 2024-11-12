@@ -54,15 +54,8 @@ async function externalQueries (x, y, queries) {
   let esriToken = appManager.token
   let tokenStartTime, tokenRefreshTime
   const allPerfData = []
-  if (config.performanceLogging) {
-    tokenStartTime = performance.now()
-  }
-  if ((!esriToken) || (appManager.expires < Date.now())) {
-    esriToken = await appManager.refreshToken()
-  }
-  if (config.performanceLogging) {
-    tokenRefreshTime = performance.now() - tokenStartTime
-  }
+  await refreshToken()
+
   const featureLayers = {}
 
   const geometry = {
@@ -103,13 +96,7 @@ async function externalQueries (x, y, queries) {
       results = await runQueries()
     } catch (err) {
       if (err.message === '498: Invalid token.') {
-        if (config.performanceLogging) {
-          tokenStartTime = performance.now()
-        }
-        esriToken = await appManager.refreshToken()
-        if (config.performanceLogging) {
-          tokenRefreshTime = performance.now() - tokenStartTime
-        }
+        await refreshToken()
         results = await runQueries()
       } else {
         throw err
@@ -130,6 +117,16 @@ async function externalQueries (x, y, queries) {
     throw new Error(`Issue with Promise.all call: ${err.message}`)
   }
   return featureLayers
+
+  async function refreshToken () {
+    if (config.performanceLogging) {
+      tokenStartTime = performance.now()
+    }
+    esriToken = await appManager.refreshToken()
+    if (config.performanceLogging) {
+      tokenRefreshTime = performance.now() - tokenStartTime
+    }
+  }
 }
 
 const riskQuery = async (x, y) => {
