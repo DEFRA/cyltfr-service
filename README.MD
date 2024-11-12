@@ -33,13 +33,17 @@ Docker v20.10.0+
 
 do http `GET` on `http://{host}:{port}/floodrisk/{x}/{y}/radius`
 
-# Environment variables (TODO: These are currently loaded via the config/server.json file not env vars)
-| name     |      description      | required  |   default   |            valid            | notes |
-|----------|-----------------------|:---------:|-------------|:---------------------------:|-------|
-| NODE_ENV | Node environment      |    no     | development | development,test,production |       |
-| HOST     | Hostname              |    yes    |             |                             |       |
-| PORT     | Port number           |    yes    |             |                             |       |
-| DB       | DB Connection String  |    yes    |             |                             |       |
+# Environment variables
+| name                | description                    | required  |   default   |            valid              | notes |
+|---------------------|--------------------------------|:---------:|-------------|:-----------------------------:|-------|
+| NODE_ENV            | Node environment               |    no     | dev         | dev,test,prod-green,prod-blue |       |
+| HOST                | Hostname                       |    no     | 0.0.0.0     |                               |       |
+| PORT                | Port number                    |    no     | 3000        |                               |       |
+| DATA_VERSION        | Version number of data         |    no     | 01          |                               |       |
+| PERFORMANCE_LOGGING | Log detailed query times       |    no     | false       |                               |       |
+| RISK_DATA_URL       | Url of the cyltfr-data service |    yes    |             |                               |       |
+| ESRI_CLIENT_ID      | Client ID number for ESRI      |    yes    |             |                               |       |
+| ESRI_CLIENT_SECRET  | ESRI Client secret             |    yes    |             |                               |       |
 
 # Prerequisites
 
