@@ -9,7 +9,7 @@ const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgi
 const riversAndSeaCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/0'
 const surfaceWaterCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_CCSW3_Depth_0mm/FeatureServer/0'
 
-const queryFeatures = jest.fn(async ({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
+const queryFeatures = jest.fn(({ url, geometry, _geometryType, _spatialRel, _returnGeometry, authentication, _outFields }) => {
   // check authentication
   checkCredentials(authentication)
 
@@ -121,20 +121,22 @@ const queryFeatures = jest.fn(async ({ url, geometry, _geometryType, _spatialRel
   if (urlToDataMap[url]) {
     const { objectIdFieldName, featureKey, isArray } = urlToDataMap[url]
     const locationData = addressData[0][geometry.x][geometry.y]
-    return {
-      objectIdFieldName,
-      uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
-      globalIdFieldName: '',
-      geometryProperties: {
-        shapeAreaFieldName: 'Shape__Area',
-        shapeLengthFieldName: 'Shape__Length',
-        units: 'esriMeters'
-      },
-      features: isArray ? [locationData[featureKey][0]] : locationData[featureKey]
-    }
+    return new Promise((resolve, _reject) => {
+      resolve({
+        objectIdFieldName,
+        uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
+        globalIdFieldName: '',
+        geometryProperties: {
+          shapeAreaFieldName: 'Shape__Area',
+          shapeLengthFieldName: 'Shape__Length',
+          units: 'esriMeters'
+        },
+        features: isArray ? [locationData[featureKey][0]] : locationData[featureKey]
+      })
+    })
   }
 
-  return {}
+  return new Promise((resolve, _reject) => { resolve({}) })
 })
 
 const checkCredentials = (authentication) => {

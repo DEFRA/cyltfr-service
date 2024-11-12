@@ -91,9 +91,9 @@ async function externalQueries (x, y, queries) {
             returnGeometry,
             authentication: esriToken,
             outFields: query.outFields || undefined
-          }).then((result) => { logPerformance(result, query, allPerfData) })
+          }).then((result) => { return logPerformance(result, query, allPerfData) })
         } else {
-          return riskData(query.url).then((result) => { logPerformance(result, query, allPerfData) })
+          return riskData(query.url).then((result) => { return logPerformance(result, query, allPerfData) })
         }
       }))
       return qRes
