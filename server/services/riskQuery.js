@@ -22,6 +22,25 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
+function logPerformance (result, query, perfDataResult) {
+  return new Promise((resolve, _reject) => {
+    if (config.performanceLogging) {
+      const retval = { ...result }
+      const perfData = {
+        startTime: query.startTime,
+        endTime: performance.now(),
+        url: query.url,
+        key: query.key
+      }
+      perfData.timeTaken = perfData.endTime - perfData.startTime
+      perfDataResult.push(perfData)
+      resolve(retval)
+    } else {
+      resolve(result)
+    }
+  })
+}
+
 const appManager = ApplicationCredentialsManager.fromCredentials({
   clientId: config.esriClientId,
   clientSecret: config.esriClientSecret
@@ -60,61 +79,21 @@ async function externalQueries (x, y, queries) {
   try {
     const runQueries = async () => {
       const qRes = await Promise.all(queries.map(query => {
+        if (config.performanceLogging) {
+          query.startTime = performance.now()
+        }
         if (query.esriCall) {
-          if (config.performanceLogging) {
-            query.startTime = performance.now()
-            return queryFeatures({
-              url: query.url,
-              geometry,
-              geometryType,
-              spatialRel,
-              returnGeometry,
-              authentication: esriToken,
-              outFields: query.outFields || undefined
-            }).then((result) => {
-              return new Promise((resolve, reject) => {
-                const retval = { ...result }
-                const perfData = {}
-                perfData.startTime = query.startTime
-                perfData.endTime = performance.now()
-                perfData.timeTaken = perfData.endTime - perfData.startTime
-                perfData.url = query.url
-                perfData.key = query.key
-                allPerfData.push(perfData)
-                resolve(retval)
-              })
-            })
-          } else {
-            return queryFeatures({
-              url: query.url,
-              geometry,
-              geometryType,
-              spatialRel,
-              returnGeometry,
-              authentication: esriToken,
-              outFields: query.outFields || undefined
-            })
-          }
+          return queryFeatures({
+            url: query.url,
+            geometry,
+            geometryType,
+            spatialRel,
+            returnGeometry,
+            authentication: esriToken,
+            outFields: query.outFields || undefined
+          }).then((result) => { logPerformance(result, query, allPerfData) })
         } else {
-          if (config.performanceLogging) {
-            query.startTime = performance.now()
-            return riskData(query.url).then(
-              (result) => {
-                return new Promise((resolve, reject) => {
-                  const retval = { ...result }
-                  const perfData = {}
-                  perfData.startTime = query.startTime
-                  perfData.endTime = performance.now()
-                  perfData.timeTaken = perfData.endTime - perfData.startTime
-                  perfData.url = query.url
-                  perfData.key = query.key
-                  allPerfData.push(perfData)
-                  resolve(retval)
-                })
-              })
-          } else {
-            return riskData(query.url)
-          }
+          return riskData(query.url).then((result) => { logPerformance(result, query, allPerfData) })
         }
       }))
       return qRes
