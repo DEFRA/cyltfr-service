@@ -2,6 +2,8 @@ const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
 const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
 const { riskData } = require('./riskData')
 const config = require('../config')
+const { performance } = require('node:perf_hooks')
+
 let riskQueries = []
 let riversSeaDepthQueries = []
 let surfaceWatchDepthQueries = []
@@ -20,6 +22,25 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
+function logPerformance (result, query, perfDataResult) {
+  return new Promise((resolve, _reject) => {
+    if (config.performanceLogging) {
+      const retval = { ...result }
+      const perfData = {
+        startTime: query.startTime,
+        endTime: performance.now(),
+        url: query.url,
+        key: query.key
+      }
+      perfData.timeTaken = perfData.endTime - perfData.startTime
+      perfDataResult.push(perfData)
+      resolve(retval)
+    } else {
+      resolve(result)
+    }
+  })
+}
+
 const appManager = ApplicationCredentialsManager.fromCredentials({
   clientId: config.esriClientId,
   clientSecret: config.esriClientSecret
@@ -31,9 +52,10 @@ async function _currentToken () {
 
 async function externalQueries (x, y, queries) {
   let esriToken = appManager.token
-  if ((!esriToken) || (appManager.expires < Date.now())) {
-    esriToken = await appManager.refreshToken()
-  }
+  let tokenStartTime, tokenRefreshTime
+  const allPerfData = []
+  await refreshToken()
+
   const featureLayers = {}
 
   const geometry = {
@@ -50,6 +72,9 @@ async function externalQueries (x, y, queries) {
   try {
     const runQueries = async () => {
       const qRes = await Promise.all(queries.map(query => {
+        if (config.performanceLogging) {
+          query.startTime = performance.now()
+        }
         if (query.esriCall) {
           return queryFeatures({
             url: query.url,
@@ -59,9 +84,9 @@ async function externalQueries (x, y, queries) {
             returnGeometry,
             authentication: esriToken,
             outFields: query.outFields || undefined
-          })
+          }).then((result) => { return logPerformance(result, query, allPerfData) })
         } else {
-          return riskData(query.url)
+          return riskData(query.url).then((result) => { return logPerformance(result, query, allPerfData) })
         }
       }))
       return qRes
@@ -71,7 +96,7 @@ async function externalQueries (x, y, queries) {
       results = await runQueries()
     } catch (err) {
       if (err.message === '498: Invalid token.') {
-        esriToken = await appManager.refreshToken()
+        await refreshToken()
         results = await runQueries()
       } else {
         throw err
@@ -84,10 +109,24 @@ async function externalQueries (x, y, queries) {
         featureLayers[queries[index].key] = result
       }
     })
+    if (config.performanceLogging) {
+      console.log('{"TokenRefreshTime" : %d}', tokenRefreshTime)
+      console.log(JSON.stringify(allPerfData))
+    }
   } catch (err) {
     throw new Error(`Issue with Promise.all call: ${err.message}`)
   }
   return featureLayers
+
+  async function refreshToken () {
+    if (config.performanceLogging) {
+      tokenStartTime = performance.now()
+    }
+    esriToken = await appManager.refreshToken()
+    if (config.performanceLogging) {
+      tokenRefreshTime = performance.now() - tokenStartTime
+    }
+  }
 }
 
 const riskQuery = async (x, y) => {
