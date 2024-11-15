@@ -73,6 +73,16 @@ const emptyDataRow = {
   ],
   extrainfo: null
 }
+const nollfaDataRow = {
+  floodAlertAreas: null,
+  floodWarningAreas: null,
+  riversAndSea: null,
+  surfaceWater: null,
+  riversAndSeaCC: null,
+  surfaceWaterCC: null,
+  dryReservoirs: null,
+  extrainfo: null
+}
 const extraInfo = [{
   info: '',
   apply: 'holding',
@@ -110,6 +120,10 @@ const getValidData = function () {
 
 const getEmptyData = function () {
   return { ...emptyDataRow }
+}
+
+const getNoLLFAData = function () {
+  return { ...nollfaDataRow }
 }
 
 const getExtraInfo = function () {
@@ -154,6 +168,7 @@ const getValidSwDepth = () => {
 module.exports = {
   getValidData,
   getEmptyData,
+  getNoLLFAData,
   getExtraInfo,
   getValidRsDepth,
   getValidSwDepth
