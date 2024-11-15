@@ -25,27 +25,23 @@ function loadRiskQueries () {
 function processEsriResponse (response) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       // log things from the headers here
-      const result = response
-      resolve(result)
+      resolve(response)
     })
   }
-  // We've got a response object that will have headers, we can dump those out here
-  // We're interested in
-  // 'x-esri-query-request-units'
-  // 'x-esri-org-request-units-per-min'
-  // 'x-cache'
-  console.log('x-esri-query-request-units: %s', response.headers.get('x-esri-query-request-units'))
-  console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
-  console.log('x-cache: %s', response.headers.get('x-cache'))
-  return new Promise((resolve, reject) => {
-    const result = response.json()
-    resolve(result)
+  if (config.performanceLogging) {
+    // We've got a response object that will have headers, we can dump those out here
+    console.log('x-esri-query-request-units: %s', response.headers.get('x-esri-query-request-units'))
+    console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
+    console.log('x-cache: %s', response.headers.get('x-cache'))
+  }
+  return new Promise((resolve, _reject) => {
+    resolve(response.json())
   })
 }
 
-function logPerformance (result, query, perfDataResult) {
+function logPerformance (result, query) {
   return new Promise((resolve, _reject) => {
     if (config.performanceLogging) {
       const perfData = {
@@ -55,7 +51,7 @@ function logPerformance (result, query, perfDataResult) {
         key: query.key
       }
       perfData.timeTaken = perfData.endTime - perfData.startTime
-      perfDataResult.push(perfData)
+      query.perfData = perfData
       resolve(result)
     } else {
       resolve(result)
@@ -72,16 +68,7 @@ async function _currentToken () {
   return appManager.token
 }
 
-async function externalQueries (x, y, queries) {
-  let esriToken = appManager.token
-  let tokenStartTime, tokenRefreshTime
-  const allPerfData = []
-  if ((!esriToken) || (appManager.expires < Date.now())) {
-    await refreshToken()
-  }
-
-  const featureLayers = {}
-
+const runQueries = async (x, y, queries) => {
   const geometry = {
     x,
     y,
@@ -92,38 +79,46 @@ async function externalQueries (x, y, queries) {
   const geometryType = 'esriGeometryPoint'
   const spatialRel = 'esriSpatialRelIntersects'
   const returnGeometry = 'false'
+  const qRes = await Promise.all(queries.map(query => {
+    if (config.performanceLogging) {
+      query.startTime = performance.now()
+    }
+    if (query.esriCall) {
+      return queryFeatures({
+        url: query.url,
+        geometry,
+        geometryType,
+        spatialRel,
+        returnGeometry,
+        authentication: appManager.token,
+        outFields: query.outFields || undefined,
+        rawResponse: true
+      }).then((response) => { return processEsriResponse(response) })
+        .then((result) => { return logPerformance(result, query) })
+    } else {
+      return riskData(query.url).then((result) => { return logPerformance(result, query) })
+    }
+  }))
+  return qRes
+}
+
+async function externalQueries (x, y, queries) {
+  let tokenStartTime, tokenRefreshTime
+  const allPerfData = []
+  if ((!appManager.token) || (appManager.expires < Date.now())) {
+    await refreshToken()
+  }
+
+  const featureLayers = {}
 
   try {
-    const runQueries = async () => {
-      const qRes = await Promise.all(queries.map(query => {
-        if (config.performanceLogging) {
-          query.startTime = performance.now()
-        }
-        if (query.esriCall) {
-          return queryFeatures({
-            url: query.url,
-            geometry,
-            geometryType,
-            spatialRel,
-            returnGeometry,
-            authentication: esriToken,
-            outFields: query.outFields || undefined,
-            rawResponse: true
-          }).then((response) => { return processEsriResponse(response) })
-            .then((result) => { return logPerformance(result, query, allPerfData) })
-        } else {
-          return riskData(query.url).then((result) => { return logPerformance(result, query, allPerfData) })
-        }
-      }))
-      return qRes
-    }
     let results
     try {
-      results = await runQueries()
+      results = await runQueries(x, y, queries)
     } catch (err) {
       if (err.message === '498: Invalid token.') {
         await refreshToken()
-        results = await runQueries()
+        results = await runQueries(x, y, queries)
       } else {
         throw err
       }
@@ -133,6 +128,9 @@ async function externalQueries (x, y, queries) {
         featureLayers[queries[index].key] = result.features
       } else {
         featureLayers[queries[index].key] = result
+      }
+      if (config.performanceLogging) {
+        allPerfData.push(queries[index].perfData)
       }
     })
     if (config.performanceLogging) {
@@ -148,7 +146,7 @@ async function externalQueries (x, y, queries) {
     if (config.performanceLogging) {
       tokenStartTime = performance.now()
     }
-    esriToken = await appManager.refreshToken()
+    await appManager.refreshToken()
     if (config.performanceLogging) {
       tokenRefreshTime = performance.now() - tokenStartTime
     }
