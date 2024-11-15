@@ -122,7 +122,7 @@ const queryFeatures = jest.fn(({ url, geometry, _geometryType, _spatialRel, _ret
     const { objectIdFieldName, featureKey, isArray } = urlToDataMap[url]
     const locationData = addressData[0][geometry.x][geometry.y]
     return new Promise((resolve, _reject) => {
-      resolve({
+      const retVal = {
         objectIdFieldName,
         uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
         globalIdFieldName: '',
@@ -132,7 +132,10 @@ const queryFeatures = jest.fn(({ url, geometry, _geometryType, _spatialRel, _ret
           units: 'esriMeters'
         },
         features: isArray ? [locationData[featureKey][0]] : locationData[featureKey]
-      })
+      }
+      retVal.headers = { get: () => 1 }
+      retVal.json = () => retVal
+      resolve(retVal)
     })
   }
 
