@@ -25,10 +25,7 @@ function loadRiskQueries () {
 function processEsriResponse (response) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
-    return new Promise((resolve, _reject) => {
-      // log things from the headers here
-      resolve(response)
-    })
+    return Promise.resolve(response)
   }
   if (config.performanceLogging) {
     // We've got a response object that will have headers, we can dump those out here
@@ -36,9 +33,7 @@ function processEsriResponse (response) {
     console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
     console.log('x-cache: %s', response.headers.get('x-cache'))
   }
-  return new Promise((resolve, _reject) => {
-    resolve(response.json())
-  })
+  return Promise.resolve(response.json())
 }
 
 function logPerformance (result, query) {
