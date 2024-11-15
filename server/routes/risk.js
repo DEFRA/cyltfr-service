@@ -99,12 +99,13 @@ module.exports = {
       if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
         isGroundwaterArea = true
       }
+      const llfa = riskQueryResult.llfa ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
 
       const response = {
         isGroundwaterArea,
         floodAlertAreas,
         floodWarningAreas,
-        leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
+        leadLocalFloodAuthority: llfa,
         reservoirDryRisk,
         reservoirWetRisk,
         riverAndSeaRisk,

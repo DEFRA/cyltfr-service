@@ -22,10 +22,32 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
+function processEsriResponse (response) {
+  // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
+  if (typeof response.json !== 'function') {
+    return new Promise((resolve, reject) => {
+      // log things from the headers here
+      const result = response
+      resolve(result)
+    })
+  }
+  // We've got a response object that will have headers, we can dump those out here
+  // We're interested in
+  // 'x-esri-query-request-units'
+  // 'x-esri-org-request-units-per-min'
+  // 'x-cache'
+  console.log('x-esri-query-request-units: %s', response.headers.get('x-esri-query-request-units'))
+  console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
+  console.log('x-cache: %s', response.headers.get('x-cache'))
+  return new Promise((resolve, reject) => {
+    const result = response.json()
+    resolve(result)
+  })
+}
+
 function logPerformance (result, query, perfDataResult) {
   return new Promise((resolve, _reject) => {
     if (config.performanceLogging) {
-      const retval = { ...result }
       const perfData = {
         startTime: query.startTime,
         endTime: performance.now(),
@@ -34,7 +56,7 @@ function logPerformance (result, query, perfDataResult) {
       }
       perfData.timeTaken = perfData.endTime - perfData.startTime
       perfDataResult.push(perfData)
-      resolve(retval)
+      resolve(result)
     } else {
       resolve(result)
     }
@@ -54,7 +76,9 @@ async function externalQueries (x, y, queries) {
   let esriToken = appManager.token
   let tokenStartTime, tokenRefreshTime
   const allPerfData = []
-  await refreshToken()
+  if ((!esriToken) || (appManager.expires < Date.now())) {
+    await refreshToken()
+  }
 
   const featureLayers = {}
 
@@ -83,8 +107,10 @@ async function externalQueries (x, y, queries) {
             spatialRel,
             returnGeometry,
             authentication: esriToken,
-            outFields: query.outFields || undefined
-          }).then((result) => { return logPerformance(result, query, allPerfData) })
+            outFields: query.outFields || undefined,
+            rawResponse: true
+          }).then((response) => { return processEsriResponse(response) })
+            .then((result) => { return logPerformance(result, query, allPerfData) })
         } else {
           return riskData(query.url).then((result) => { return logPerformance(result, query, allPerfData) })
         }
