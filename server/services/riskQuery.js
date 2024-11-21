@@ -84,6 +84,8 @@ const runQueries = async (x, y, queries) => {
         geometry,
         geometryType,
         spatialRel,
+        distance: 2,
+        units: 'esriSRUnit_Meter',
         returnGeometry,
         authentication: appManager.token,
         outFields: query.outFields || undefined,
