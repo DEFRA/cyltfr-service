@@ -26,10 +26,12 @@ const validDataRow = {
       }
     }],
   surfaceWater: [
+    { attributes: { Risk_band: 'Low' } },
     { attributes: { Risk_band: 'High' } }
   ],
   surfaceWaterCC: [
-    { attributes: { Risk_band: 'High' } }
+    { attributes: { Risk_band: 'High' } },
+    { attributes: { Risk_band: 'Low' } }
   ],
   dryReservoirs: [
     {
@@ -78,7 +80,12 @@ const nollfaDataRow = {
   floodWarningAreas: null,
   riversAndSea: null,
   surfaceWater: null,
-  riversAndSeaCC: null,
+  riversAndSeaCC: [
+    {
+      attributes: {
+        Risk_band: 'No data'
+      }
+    }],
   surfaceWaterCC: null,
   dryReservoirs: null,
   extrainfo: null
