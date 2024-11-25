@@ -23,6 +23,11 @@ describe('riskQuery', () => {
       const result = await riskQuery(x, y)
       expect(result).toEqual(expect.objectContaining(returnedQuery))
     })
+    test('High risk of rivers and the sea and surface water, no reservoirs, flood alert and warning, no llfa', async () => {
+      [x, y] = [564228, 263338]
+      const result = await riskQuery(x, y)
+      expect(result).toEqual(expect.objectContaining(returnedQuery2))
+    })
 
     test('Very low risk of rivers and the sea and surface water, no reservoirs should be empty arrays', async () => {
       [x, y] = [562372, 132869]
@@ -293,3 +298,6 @@ const returnedQuery = {
     }
   }]
 }
+
+const returnedQuery2 = returnedQuery
+delete returnedQuery2.llfa

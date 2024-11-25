@@ -12,7 +12,7 @@ class ApplicationCredentialsManager {
     this.#tokenCount = 0
     this.correctId = clientId === '12345' ? '12345' : 'failed'
     this.correctSecret = clientSecret === 'abc123' ? 'abc123' : 'failed'
-    this.token = `1234abcd${this.#tokenCount}`
+    this.token = ''
     this.expires = '2024-07-23T14:22:45.048Z'
     this.portal = 'https://www.arcgis.com/sharing/rest'
     this.duration = 7200

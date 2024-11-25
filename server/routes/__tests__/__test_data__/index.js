@@ -26,10 +26,12 @@ const validDataRow = {
       }
     }],
   surfaceWater: [
+    { attributes: { Risk_band: 'Low' } },
     { attributes: { Risk_band: 'High' } }
   ],
   surfaceWaterCC: [
-    { attributes: { Risk_band: 'High' } }
+    { attributes: { Risk_band: 'High' } },
+    { attributes: { Risk_band: 'Low' } }
   ],
   dryReservoirs: [
     {
@@ -73,6 +75,21 @@ const emptyDataRow = {
   ],
   extrainfo: null
 }
+const nollfaDataRow = {
+  floodAlertAreas: null,
+  floodWarningAreas: null,
+  riversAndSea: null,
+  surfaceWater: null,
+  riversAndSeaCC: [
+    {
+      attributes: {
+        Risk_band: 'No data'
+      }
+    }],
+  surfaceWaterCC: null,
+  dryReservoirs: null,
+  extrainfo: null
+}
 const extraInfo = [{
   info: '',
   apply: 'holding',
@@ -110,6 +127,10 @@ const getValidData = function () {
 
 const getEmptyData = function () {
   return { ...emptyDataRow }
+}
+
+const getNoLLFAData = function () {
+  return { ...nollfaDataRow }
 }
 
 const getExtraInfo = function () {
@@ -154,6 +175,7 @@ const getValidSwDepth = () => {
 module.exports = {
   getValidData,
   getEmptyData,
+  getNoLLFAData,
   getExtraInfo,
   getValidRsDepth,
   getValidSwDepth

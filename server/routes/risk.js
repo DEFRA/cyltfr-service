@@ -14,6 +14,19 @@ const RiskLevels = [
   'High'
 ]
 
+const getHighestRiskBand = (riskBands) => {
+  let retval
+  if (Array.isArray(riskBands) && riskBands.length) {
+    retval = riskBands.reduce((acc, curr) => {
+      if (RiskOverrideLevels.indexOf(curr.attributes.Risk_band.toLowerCase()) > RiskOverrideLevels.indexOf(acc.attributes.Risk_band.toLowerCase())) {
+        return curr
+      }
+      return acc
+    })
+  }
+  return retval ? retval.attributes.Risk_band : null
+}
+
 module.exports = {
   method: 'GET',
   path: '/floodrisk/{x}/{y}/{radius}',
@@ -69,16 +82,18 @@ module.exports = {
       } else {
         reservoirWetRisk = riskQueryResult.wetReservoirs
       }
-      if (riskQueryResult.riversAndSea?.[0]) {
-        const riskBand = riskQueryResult.riversAndSea[0].attributes.Risk_band
+
+      const rAndSband = getHighestRiskBand(riskQueryResult.riversAndSea)
+      if (rAndSband) {
         riverAndSeaRisk = {
-          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(rAndSband.toLowerCase())] || rAndSband
         }
       }
-      if (riskQueryResult.riversAndSeaCC?.[0]) {
-        const riskBand = riskQueryResult.riversAndSeaCC[0].attributes.Risk_band
+
+      const rAndSbandCC = getHighestRiskBand(riskQueryResult.riversAndSeaCC)
+      if (rAndSbandCC) {
         riverAndSeaRiskCC = {
-          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(rAndSbandCC.toLowerCase())] || rAndSbandCC
         }
       }
 
@@ -100,17 +115,19 @@ module.exports = {
         isGroundwaterArea = true
       }
 
+      const llfa = riskQueryResult.llfa ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
+
       const response = {
         isGroundwaterArea,
         floodAlertAreas,
         floodWarningAreas,
-        leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
+        leadLocalFloodAuthority: llfa,
         reservoirDryRisk,
         reservoirWetRisk,
         riverAndSeaRisk,
         riverAndSeaRiskCC,
-        surfaceWaterRisk: Array.isArray(riskQueryResult.surfaceWater) && riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
-        surfaceWaterRiskCC: Array.isArray(riskQueryResult.surfaceWaterCC) && riskQueryResult.surfaceWaterCC[0] ? riskQueryResult.surfaceWaterCC[0].attributes.Risk_band : undefined,
+        surfaceWaterRisk: getHighestRiskBand(riskQueryResult.surfaceWater),
+        surfaceWaterRiskCC: getHighestRiskBand(riskQueryResult.surfaceWaterCC),
         extraInfo: riskQueryResult.extrainfo
       }
 

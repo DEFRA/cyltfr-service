@@ -29,6 +29,13 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
+  test('Empty LLFA doesn\'t error', async () => {
+    riskQuery._queryResult(testData.getNoLLFAData())
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
   test('/floodrisk/{x}/{y}/{radius} - No db result', async () => {
     riskQuery._queryResult(undefined)
 
@@ -97,6 +104,17 @@ describe('Unit tests - /floodrisk', () => {
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('/floodrisk/{x}/{y}/{radius} - Extra info result', async () => {
+    const inputData = testData.getValidData()
+    // The extra info contains a surface water override that will change the High to Low
+    inputData.extrainfo = testData.getExtraInfo()
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
   test('/floodrisk/{x}/{y}/{radius} - Extra info result', async () => {
