@@ -132,7 +132,7 @@ module.exports = {
       }
 
       const processExtraInfo = (item) => {
-        if ((item.riskoverride !== null) && (item.apply === 'holding')) {
+        if ((item.riskoverride) && (item.apply === 'holding')) {
           const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
           if (riskOverride >= 0) {
             response.surfaceWaterRisk = RiskLevels[riskOverride]

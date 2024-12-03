@@ -36,6 +36,13 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
+  test('Empty risk override doesn\'t error', async () => {
+    riskQuery._queryResult(testData.getNoRiskOverrideData())
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
   test('/floodrisk/{x}/{y}/{radius} - No db result', async () => {
     riskQuery._queryResult(undefined)
 
