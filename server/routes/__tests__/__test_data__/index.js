@@ -137,6 +137,12 @@ const getExtraInfo = function () {
   return extraInfo
 }
 
+const getNoRiskOverrideData = function () {
+  const retval = { ...nollfaDataRow }
+  retval.extrainfo = [{ risktype: 'Rivers and the sea', info: 'Test data', apply: 'holding' }]
+  return retval
+}
+
 const validRsDepth = {
   200: {
     current: 'High',
@@ -178,5 +184,6 @@ module.exports = {
   getNoLLFAData,
   getExtraInfo,
   getValidRsDepth,
-  getValidSwDepth
+  getValidSwDepth,
+  getNoRiskOverrideData
 }
