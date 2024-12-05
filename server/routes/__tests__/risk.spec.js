@@ -7,6 +7,7 @@ const options = {
   url: '/floodrisk/564228/263339/20'
 }
 
+jest.mock('../../config')
 jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
 jest.mock('../../services/riskQuery')

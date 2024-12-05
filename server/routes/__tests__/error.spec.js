@@ -2,6 +2,8 @@ const STATUS_CODES = require('http2').constants
 const createServer = require('../../index')
 let server
 
+jest.mock('../../config')
+
 beforeAll(async () => {
   server = await createServer()
   await server.initialize()
