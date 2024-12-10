@@ -41,7 +41,6 @@ function processEsriHeaders (response, esriRequestUnits) {
         esriRequestUnits.highest = ru[0]
       }
     }
-    // console.log('x-esri-org-request-units-per-min: %s', ruPerMin'))
   }
   return Promise.resolve(response.json())
 }
@@ -157,8 +156,10 @@ const runQueries = async (x, y, queries) => {
       return riskData(query.url).then((result) => { return checkResult(result, query) })
     }
   }))
-  esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
-  console.log(esriRequestUnits)
+  if (config.performanceLogging) {
+    esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
+    console.log(esriRequestUnits)
+  }
   return qRes
 }
 
