@@ -42,6 +42,7 @@ const riversAndSeaDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgi
 const surfaceWaterDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth__0mm/FeatureServer/0'
 const riversAndSeaCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/0'
 const surfaceWaterCCDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_CCSW3_Depth_0mm/FeatureServer/0'
+const reservoirLayerUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Flood_Extents_NON_PRODUCTION/FeatureServer'
 
 const request = jest.fn((requesturl, requestObj) => {
   // check authentication
@@ -49,6 +50,18 @@ const request = jest.fn((requesturl, requestObj) => {
     [reservoirsDryDataUrl]: {
       objectIdFieldName: 'Dry reservoirs',
       featureKey: 'dryReservoirs'
+    },
+    [reservoirLayerUrl]: {
+      layers: [
+        {
+          objectIdFieldName: 'Dry reservoirs',
+          featureKey: 'dryReservoirs'
+        },
+        {
+          objectIdFieldName: 'Wet reservoirs',
+          featureKey: 'wetReservoirs'
+        }
+      ]
     },
     [reservoirsWetDataUrl]: {
       objectIdFieldName: 'Wet reservoirs',
@@ -151,9 +164,12 @@ const request = jest.fn((requesturl, requestObj) => {
   }
 
   if (urlToDataMap[requestObj.params.url]) {
-    const { objectIdFieldName, featureKey, isArray } = urlToDataMap[requestObj.params.url]
-    const locationData = addressData[0][requestObj.params.geometry.x][requestObj.params.geometry.y]
-    return new Promise((resolve, _reject) => {
+    const { objectIdFieldName, featureKey, isArray, layers } = urlToDataMap[requestObj.params.url]
+    const x = requestObj.params.geometry.x ? requestObj.params.geometry.x : requestObj.params.geometry.xmin
+    const y = requestObj.params.geometry.y ? requestObj.params.geometry.y : requestObj.params.geometry.ymin
+    const locationData = addressData[0][x][y]
+    let funcReturn = {}
+    const getRetVal = ({ objectIdFieldName, featureKey, isArray, locationData }) => {
       const retVal = {
         objectIdFieldName,
         uniqueIdField: { name: 'OBJECTID', isSystemMaintained: true },
@@ -165,9 +181,20 @@ const request = jest.fn((requesturl, requestObj) => {
         },
         features: isArray ? [locationData[featureKey][0]] : locationData[featureKey]
       }
-      retVal.headers = { get: () => '1;1' }
-      retVal.json = () => retVal
-      resolve(retVal)
+      return retVal
+    }
+    if (layers) {
+      funcReturn.layers = []
+      layers.forEach(layer => {
+        funcReturn.layers.push(getRetVal({ objectIdFieldName: layer.objectIdFieldName, featureKey: layer.featureKey, isArray: false, locationData }))
+      })
+    } else {
+      funcReturn = getRetVal({ objectIdFieldName, featureKey, isArray, locationData })
+    }
+    return new Promise((resolve, _reject) => {
+      funcReturn.headers = { get: () => '1;1' }
+      funcReturn.json = () => funcReturn
+      resolve(funcReturn)
     })
   }
 

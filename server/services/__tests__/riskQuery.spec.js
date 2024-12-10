@@ -1,4 +1,4 @@
-const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
+const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, reservoirQuery, _currentToken } = require('../riskQuery')
 jest.mock('../../config')
 jest.mock('node-fetch')
 jest.mock('@esri/arcgis-rest-request')
@@ -93,6 +93,17 @@ describe('riskQuery', () => {
       [x, y] = [400000, 500000]
       const result = await surfaceWaterDepth(x, y)
       expect(result).toMatchObject(swDepthQuery)
+    })
+  })
+
+  describe('Reservoir queries', () => {
+    test('a reservoir query', async () => {
+      [x, y] = [460121, 431744]
+      const result = await reservoirQuery(x, y)
+      expect(result).toEqual(expect.objectContaining({
+        wetReservoirs: reservoirs.wet,
+        dryReservoirs: reservoirs.dry
+      }))
     })
   })
 })
@@ -295,6 +306,3 @@ const returnedQuery = {
     }
   }]
 }
-
-const returnedQuery2 = returnedQuery
-delete returnedQuery2.llfa

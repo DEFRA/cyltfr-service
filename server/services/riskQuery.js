@@ -115,7 +115,7 @@ const runQueries = async (x, y, queries) => {
       const requestOptions = {
         url: query.url,
         spatialRel,
-        // cacheHint: true,
+        cacheHint: true,
         returnGeometry,
         authentication: appManager.token,
         outFields: query.outFields || undefined,
