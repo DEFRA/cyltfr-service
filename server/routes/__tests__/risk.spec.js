@@ -52,7 +52,7 @@ describe('Unit tests - /floodrisk', () => {
 
   test('/floodrisk/{x}/{y}/{radius} - Exception raised during call', async () => {
     riskQuery.riskQuery.mockImplementationOnce(() => {
-      return new Promise((_resolve, _reject) => { throw new Error('Issue with Promise.all call: Mock error') })
+      return Promise.reject(new Error('Issue with Promise.all call: Mock error'))
     })
 
     const response = await server.inject(options)

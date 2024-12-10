@@ -83,10 +83,11 @@ function esriRequest (requestOptions) {
   const optionsArray = Object.keys(requestOptions)
   const queryOptions = appendCustomParams(requestOptions, optionsArray, {
     httpMethod: 'GET',
-    params: Object.assign({
-      // set default query parameters
-      where: '1=1', outFields: '*'
-    }, requestOptions.params)
+    params: {
+      where: '1=1',
+      outFields: '*',
+      ...requestOptions.params
+    }
   })
   return request(`${requestOptions.url}/query`, queryOptions)
 }

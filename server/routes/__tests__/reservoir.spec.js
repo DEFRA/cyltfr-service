@@ -45,9 +45,7 @@ describe('Unit tests - /reservoir', () => {
 
   test('/reservoir/{x}/{y} - Exception raised during call', async () => {
     riskQuery.reservoirQuery.mockImplementationOnce(() => {
-      return new Promise((_resolve, _reject) => {
-        _reject(new Error('Issue with Promise.all call: Mock error'))
-      })
+      return Promise.reject(new Error('Issue with Promise.all call: Mock error'))
     })
 
     const response = await server.inject(options)
