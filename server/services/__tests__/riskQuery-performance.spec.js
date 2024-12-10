@@ -1,6 +1,5 @@
 jest.mock('../../config')
 jest.mock('node-fetch')
-jest.mock('@esri/arcgis-rest-feature-service')
 jest.mock('@esri/arcgis-rest-request')
 const config = require('../../config')
 

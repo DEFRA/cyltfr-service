@@ -24,16 +24,12 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
-function processEsriResponse (response, esriRequestUnits) {
+function processEsriHeaders (response, esriRequestUnits) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
     return Promise.resolve(response)
   }
   if (config.performanceLogging) {
-    // We've got a response object that will have headers, we can dump those out here
-    // console.log(response.headers)
-    // console.log('x-esri-query-request-units: %s', response.headers.get('x-esri-query-request-units'))
-    // console.log('x-esri-query-readonly-replica: %s', response.headers.get('x-esri-query-readonly-replica'))
     const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
     if (ruPerMin) {
       const ru = ruPerMin.split(';')
@@ -45,14 +41,17 @@ function processEsriResponse (response, esriRequestUnits) {
         esriRequestUnits.highest = ru[0]
       }
     }
-    // console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
-    // console.log('x-cache: %s', response.headers.get('x-cache'))
+    // console.log('x-esri-org-request-units-per-min: %s', ruPerMin'))
   }
   return Promise.resolve(response.json())
 }
 
-function logPerformance (result, query) {
+function checkResult (result, query) {
   return new Promise((resolve, _reject) => {
+    if (result.error) {
+      console.log('Error: %s', result.error.message)
+      throw new Error(`${result.error.code}: ${result.error.message}`)
+    }
     if (config.performanceLogging) {
       const perfData = {
         startTime: query.startTime,
@@ -151,10 +150,10 @@ const runQueries = async (x, y, queries) => {
         requestOptions.geometryType = geometryType
       }
       return esriRequest(requestOptions)
-        .then((response) => { return processEsriResponse(response, esriRequestUnits) })
-        .then((result) => { return logPerformance(result, query) })
+        .then((response) => { return processEsriHeaders(response, esriRequestUnits) })
+        .then((result) => { return checkResult(result, query) })
     } else {
-      return riskData(query.url).then((result) => { return logPerformance(result, query) })
+      return riskData(query.url).then((result) => { return checkResult(result, query) })
     }
   }))
   esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
@@ -185,6 +184,11 @@ async function externalQueries (x, y, queries) {
     }
     results.forEach((result, index) => {
       if (queries[index].esriCall) {
+        if (!((result.features) || (result.layers))) {
+          console.log('Error: Invalid response for %s', queries[index].key)
+          console.log(result)
+          throw new Error(`Invalid response for ${queries[index].key}`)
+        }
         if (result.layers) {
           result.layers.forEach((layer, element) => {
             const layerName = queries[index].layers[element]

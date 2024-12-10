@@ -7,7 +7,7 @@
 
   {
     "key": "wetReservoirs",
-    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Merge_Dissolve/FeatureServer/0",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Merge_Dissolve2/FeatureServer/0",
     "outFields": "Risk_band"
   },
   
