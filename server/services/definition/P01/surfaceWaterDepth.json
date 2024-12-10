@@ -1,0 +1,38 @@
+[
+  {
+    "key": "surfaceWaterDepth200mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_200mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "surfaceWaterDepth300mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_300mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "surfaceWaterDepth600mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_600mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "surfaceWaterCCDepth200mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_CCSW1_200mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "surfaceWaterCCDepth300mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_CCSW1_300mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "surfaceWaterCCDepth600mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_CCSW1_600mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  }
+]
