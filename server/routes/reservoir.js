@@ -1,7 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const { reservoirQuery } = require('../services/riskQuery')
-const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('./getReservoirDryRisk')
+const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
 
 module.exports = {
   method: 'GET',
