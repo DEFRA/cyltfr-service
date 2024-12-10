@@ -1,0 +1,10 @@
+[
+  {
+    "layers": [
+      "dryReservoirs",
+      "wetReservoirs"
+    ],
+    "buffer": 2,
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Flood_Extents_NON_PRODUCTION/FeatureServer"
+  }
+]

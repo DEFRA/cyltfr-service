@@ -1,5 +1,4 @@
-const { ApplicationCredentialsManager } = require('@esri/arcgis-rest-request')
-const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
+const { ApplicationCredentialsManager, request, appendCustomParams } = require('@esri/arcgis-rest-request')
 const { riskData } = require('./riskData')
 const config = require('../config')
 const { performance } = require('node:perf_hooks')
@@ -7,6 +6,7 @@ const { performance } = require('node:perf_hooks')
 let riskQueries = []
 let riversSeaDepthQueries = []
 let surfaceWatchDepthQueries = []
+let reservoirQueries = []
 const fs = require('fs')
 const path = require('path')
 let riskQueriesLoaded = false
@@ -16,34 +16,49 @@ function loadRiskQueries () {
   const queryData = fs.readFileSync(path.join(filePath, 'riskQueries.json'))
   const rsData = fs.readFileSync(path.join(filePath, 'riversSeaDepth.json'))
   const swData = fs.readFileSync(path.join(filePath, 'surfaceWaterDepth.json'))
+  const reservoirData = fs.readFileSync(path.join(filePath, 'reservoirQueries.json'))
   riskQueries = JSON.parse(queryData)
   riversSeaDepthQueries = JSON.parse(rsData)
   surfaceWatchDepthQueries = JSON.parse(swData)
+  reservoirQueries = JSON.parse(reservoirData)
   riskQueriesLoaded = true
 }
 
-function processEsriResponse (response) {
+function processEsriHeaders (response, esriRequestUnits) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
     return Promise.resolve(response)
   }
   if (config.performanceLogging) {
-    // We've got a response object that will have headers, we can dump those out here
-    console.log('x-esri-query-request-units: %s', response.headers.get('x-esri-query-request-units'))
-    console.log('x-esri-org-request-units-per-min: %s', response.headers.get('x-esri-org-request-units-per-min'))
-    console.log('x-cache: %s', response.headers.get('x-cache'))
+    const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
+    if (ruPerMin) {
+      const ru = ruPerMin.split(';')
+      ru[0] = parseInt(ru[0].split('=')[1])
+      if ((ru[0] < esriRequestUnits.lowest) || (esriRequestUnits.lowest === 0)) {
+        esriRequestUnits.lowest = ru[0]
+      }
+      if (ru[0] > esriRequestUnits.highest) {
+        esriRequestUnits.highest = ru[0]
+      }
+    }
   }
   return Promise.resolve(response.json())
 }
 
-function logPerformance (result, query) {
+function checkResult (result, query) {
   return new Promise((resolve, _reject) => {
+    if (result.error) {
+      console.log('Error: %s', result.error.message)
+      throw new Error(`${result.error.code}: ${result.error.message}`)
+    }
     if (config.performanceLogging) {
       const perfData = {
         startTime: query.startTime,
         endTime: performance.now(),
         url: query.url,
-        key: query.key
+        key: query.key,
+        layers: query.layers,
+        buffer: query.buffer
       }
       perfData.timeTaken = perfData.endTime - perfData.startTime
       query.perfData = perfData
@@ -63,6 +78,19 @@ async function _currentToken () {
   return appManager.token
 }
 
+function esriRequest (requestOptions) {
+  const optionsArray = Object.keys(requestOptions)
+  const queryOptions = appendCustomParams(requestOptions, optionsArray, {
+    httpMethod: 'GET',
+    params: {
+      where: '1=1',
+      outFields: '*',
+      ...requestOptions.params
+    }
+  })
+  return request(`${requestOptions.url}/query`, queryOptions)
+}
+
 const runQueries = async (x, y, queries) => {
   const geometry = {
     x,
@@ -74,28 +102,64 @@ const runQueries = async (x, y, queries) => {
   const geometryType = 'esriGeometryPoint'
   const spatialRel = 'esriSpatialRelIntersects'
   const returnGeometry = 'false'
+  const esriRequestUnits = {
+    lowest: 0,
+    highest: 0
+  }
   const qRes = await Promise.all(queries.map(query => {
     if (config.performanceLogging) {
       query.startTime = performance.now()
     }
     if (query.esriCall) {
-      return queryFeatures({
+      const requestOptions = {
         url: query.url,
-        geometry,
-        geometryType,
         spatialRel,
-        // distance: 2,
-        // units: 'esriSRUnit_Meter',
+        cacheHint: true,
         returnGeometry,
         authentication: appManager.token,
         outFields: query.outFields || undefined,
         rawResponse: true
-      }).then((response) => { return processEsriResponse(response) })
-        .then((result) => { return logPerformance(result, query) })
+      }
+      if (query.layers) {
+        requestOptions.layerDefs = {}
+        query.layers.forEach((_layer, element) => {
+          requestOptions.layerDefs[element] = ''
+        })
+        if (query.buffer) {
+          const buffer = query.buffer / 2
+          requestOptions.geometry = {
+            xmin: x - buffer,
+            ymin: y - buffer,
+            xmax: x + buffer,
+            ymax: y + buffer,
+            spatialReference: {
+              wkid: 27700
+            }
+          }
+          requestOptions.geometryType = 'esriGeometryEnvelope'
+        } else {
+          requestOptions.geometry = geometry
+          requestOptions.geometryType = geometryType
+        }
+      } else {
+        if (query.buffer) {
+          requestOptions.distance = query.buffer
+          requestOptions.units = 'esriSRUnit_Meter'
+        }
+        requestOptions.geometry = geometry
+        requestOptions.geometryType = geometryType
+      }
+      return esriRequest(requestOptions)
+        .then((response) => { return processEsriHeaders(response, esriRequestUnits) })
+        .then((result) => { return checkResult(result, query) })
     } else {
-      return riskData(query.url).then((result) => { return logPerformance(result, query) })
+      return riskData(query.url).then((result) => { return checkResult(result, query) })
     }
   }))
+  if (config.performanceLogging) {
+    esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
+    console.log(esriRequestUnits)
+  }
   return qRes
 }
 
@@ -122,7 +186,19 @@ async function externalQueries (x, y, queries) {
     }
     results.forEach((result, index) => {
       if (queries[index].esriCall) {
-        featureLayers[queries[index].key] = result.features
+        if (!((result.features) || (result.layers))) {
+          console.log('Error: Invalid response for %s', queries[index].key)
+          console.log(result)
+          throw new Error(`Invalid response for ${queries[index].key}`)
+        }
+        if (result.layers) {
+          result.layers.forEach((layer, element) => {
+            const layerName = queries[index].layers[element]
+            featureLayers[layerName] = layer.features
+          })
+        } else {
+          featureLayers[queries[index].key] = result.features
+        }
       } else {
         featureLayers[queries[index].key] = result
       }
@@ -150,17 +226,20 @@ async function externalQueries (x, y, queries) {
   }
 }
 
+const buildQueryList = (queries) => {
+  return queries.map(query => ({
+    esriCall: true,
+    layers: query.layers,
+    key: query.key,
+    url: query.url,
+    outfields: query.outfields,
+    buffer: query.buffer
+  }))
+}
+
 const riskQuery = async (x, y) => {
-  const queries = []
   if (!riskQueriesLoaded) { loadRiskQueries() }
-  riskQueries.forEach(query => {
-    queries.push({
-      esriCall: true,
-      key: query.key,
-      url: query.url,
-      outfields: query.outfields
-    })
-  })
+  const queries = buildQueryList(riskQueries)
   queries.push({
     esriCall: false,
     key: 'extrainfo',
@@ -170,28 +249,22 @@ const riskQuery = async (x, y) => {
   return externalQueries(x, y, queries)
 }
 
-const depthQueries = async (x, y, dq) => {
-  const queries = []
-  dq.forEach(query => {
-    queries.push({
-      esriCall: true,
-      key: query.key,
-      url: query.url,
-      outfields: query.outfields
-    })
-  })
-
-  return externalQueries(x, y, queries)
-}
-
 const riversAndSeaDepth = async (x, y) => {
   if (!riskQueriesLoaded) { loadRiskQueries() }
-  return depthQueries(x, y, riversSeaDepthQueries)
+  const queries = buildQueryList(riversSeaDepthQueries)
+  return externalQueries(x, y, queries)
 }
 
 const surfaceWaterDepth = async (x, y) => {
   if (!riskQueriesLoaded) { loadRiskQueries() }
-  return depthQueries(x, y, surfaceWatchDepthQueries)
+  const queries = buildQueryList(surfaceWatchDepthQueries)
+  return externalQueries(x, y, queries)
 }
 
-module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken }
+const reservoirQuery = async (x, y) => {
+  if (!riskQueriesLoaded) { loadRiskQueries() }
+  const queries = buildQueryList(reservoirQueries)
+  return externalQueries(x, y, queries)
+}
+
+module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, reservoirQuery, _currentToken }

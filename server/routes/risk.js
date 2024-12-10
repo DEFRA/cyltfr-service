@@ -1,6 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const { riskQuery } = require('../services/riskQuery')
+const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
 const RiskOverrideLevels = [
   'very low',
   'low',
@@ -44,44 +45,16 @@ module.exports = {
         return boom.badRequest('Invalid result', new Error('Invalid query response'))
       }
 
+      let riverAndSeaRisk = null
+      let riverAndSeaRiskCC = null
+
       /*
         * If we get here we can be sure we have a valid result from
         * the ESRI database and we can start to prepare our return response
         */
-      let reservoirDryRisk = null
-      let reservoirWetRisk = null
-      let riverAndSeaRisk = null
-      let riverAndSeaRiskCC = null
+      const reservoirDryRisk = getReservoirDryRisk(riskQueryResult)
 
-      if (riskQueryResult.dryReservoirs?.length > 0) {
-        reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
-          return {
-            reservoirName: item.attributes.reservoir,
-            location: item.attributes.ngr,
-            riskDesignation: item.attributes.risk_designation,
-            undertaker: item.attributes.undertaker,
-            leadLocalFloodAuthority: item.attributes.llfa_name,
-            comments: item.attributes.comments
-          }
-        })
-      } else {
-        reservoirDryRisk = riskQueryResult.dryReservoirs
-      }
-
-      if (riskQueryResult.wetReservoirs?.length > 0) {
-        reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
-          return {
-            reservoirName: item.attributes.RESERVOIR,
-            location: item.attributes.NGR,
-            riskDesignation: item.attributes.RISK_DESIGNATION,
-            undertaker: item.attributes.UNDERTAKER,
-            leadLocalFloodAuthority: item.attributes.LLFA_NAME,
-            comments: item.attributes.COMMENTS
-          }
-        })
-      } else {
-        reservoirWetRisk = riskQueryResult.wetReservoirs
-      }
+      const reservoirWetRisk = getReservoirWetRisk(riskQueryResult)
 
       const rAndSband = getHighestRiskBand(riskQueryResult.riversAndSea)
       if (rAndSband) {
@@ -98,20 +71,11 @@ module.exports = {
       }
 
       let isGroundwaterArea = false
-      const floodAlertList = []
-      riskQueryResult.floodAlertAreas?.forEach((area) => {
-        floodAlertList.push(area.attributes.FWS_TACODE)
-      })
-      const floodWarningList = []
-      riskQueryResult.floodWarningAreas?.forEach((area) => {
-        floodWarningList.push(area.attributes.FWS_TACODE)
-      })
 
-      const floodAlertAreas = floodAlertList
-      const floodWarningAreas = floodWarningList
-      const fifthChar = 5
+      const floodAlertAreas = processAreaList(riskQueryResult.floodAlertAreas)
+      const floodWarningAreas = processAreaList(riskQueryResult.floodWarningAreas)
 
-      if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
+      if (groundWaterAreaCheck(floodAlertAreas) || groundWaterAreaCheck(floodWarningAreas)) {
         isGroundwaterArea = true
       }
 

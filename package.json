@@ -27,7 +27,7 @@
   "author": "",
   "license": "OGL-UK-3.0",
   "dependencies": {
-    "@esri/arcgis-rest-feature-service": "^4.0.6",
+    "@esri/arcgis-rest-request": "^4.2.3",
     "@hapi/boom": "^10.0.1",
     "@hapi/hapi": "^21.3.9",
     "dotenv": "^16.4.5",
