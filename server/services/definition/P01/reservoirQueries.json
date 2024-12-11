@@ -1,0 +1,14 @@
+[
+  {
+    "key": "dryReservoirs",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Flood_Extents_Merged/FeatureServer/0",
+    "outFields": "Risk_band"
+  },
+  {
+    "layers": [
+      "floodWarningAreas",
+      "floodAlertAreas"
+    ],
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Check_Your_Long_Term_Flood_Risk_Target_Area_Query_Layer/FeatureServer"
+  }
+]

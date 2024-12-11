@@ -1,0 +1,38 @@
+[
+  {
+    "key": "riversAndSeaDepth200mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_200mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "riversAndSeaDepth300mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_300mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "riversAndSeaDepth600mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_600mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "riversAndSeaCCDepth200mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_CCRS1_200mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "riversAndSeaCCDepth300mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_CCRS1_300mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  },
+  {
+    "key": "riversAndSeaCCDepth600mm",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Rivers_and_Sea_CCRS1_600mm/FeatureServer/0",
+    "outFields": "Risk_band",
+    "buffer": 4
+  }
+]
