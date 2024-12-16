@@ -1,18 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const { surfaceWaterDepth } = require('../services/riskQuery')
-const RiskOverrideLevels = [
-  'very low',
-  'low',
-  'medium',
-  'high'
-]
-const RiskLevels = [
-  'Very Low',
-  'Low',
-  'Medium',
-  'High'
-]
+const { getHighestRiskBand } = require('./getHighestRiskBand')
 
 module.exports = {
   method: 'GET',
@@ -23,11 +12,6 @@ module.exports = {
       const params = request.params
 
       const swDepthResult = await surfaceWaterDepth(params.x, params.y)
-
-      const getBand = (data) => {
-        const riskBand = Array.isArray(data) && data[0] ? data[0].attributes.Risk_band : undefined
-        return RiskLevels[RiskOverrideLevels.indexOf(riskBand?.toLowerCase())] || riskBand
-      }
 
       /*
         * Do some assertions around the result we get back from the database
@@ -42,16 +26,16 @@ module.exports = {
         */
       const response = {
         200: {
-          current: getBand(swDepthResult.surfaceWaterDepth200mm),
-          cc: getBand(swDepthResult.surfaceWaterCCDepth200mm)
+          current: getHighestRiskBand(swDepthResult.surfaceWaterDepth200mm),
+          cc: getHighestRiskBand(swDepthResult.surfaceWaterCCDepth200mm)
         },
         300: {
-          current: getBand(swDepthResult.surfaceWaterDepth300mm),
-          cc: getBand(swDepthResult.surfaceWaterCCDepth300mm)
+          current: getHighestRiskBand(swDepthResult.surfaceWaterDepth300mm),
+          cc: getHighestRiskBand(swDepthResult.surfaceWaterCCDepth300mm)
         },
         600: {
-          current: getBand(swDepthResult.surfaceWaterDepth600mm),
-          cc: getBand(swDepthResult.surfaceWaterCCDepth600mm)
+          current: getHighestRiskBand(swDepthResult.surfaceWaterDepth600mm),
+          cc: getHighestRiskBand(swDepthResult.surfaceWaterCCDepth600mm)
         }
       }
 
