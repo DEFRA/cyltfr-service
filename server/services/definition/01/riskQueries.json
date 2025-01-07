@@ -27,8 +27,7 @@
   {
     "key": "riversAndSeaCC",
     "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/ArcGIS/rest/services/risk_of_flooding_from_rivers_and_sea_CCRS2_depth_properties/FeatureServer/0",
-    "outFields": "Risk_band",
-    "buffer": 2
+    "outFields": "Risk_band"
   },
   {
     "key": "surfaceWater",
