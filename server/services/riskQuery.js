@@ -106,7 +106,7 @@ const runQueries = async (x, y, queries) => {
     lowest: 0,
     highest: 0
   }
-  const qRes = await Promise.all(queries.map(query => {
+  const qRes = await Promise.allSettled(queries.map(query => {
     if (config.performanceLogging) {
       query.startTime = performance.now()
     }
@@ -184,7 +184,11 @@ async function externalQueries (x, y, queries) {
         throw err
       }
     }
-    results.forEach((result, index) => {
+    results.forEach((promiseresult, index) => {
+      const result = promiseresult.value
+      if (promiseresult.status === 'rejected') {
+        throw new Error(`Error: ${promiseresult.reason}`, { cause: queries[index] })
+      }
       if (queries[index].esriCall) {
         if (!((result.features) || (result.layers))) {
           console.log('Error: Invalid response for %s', queries[index].key)
@@ -211,7 +215,8 @@ async function externalQueries (x, y, queries) {
       console.log(JSON.stringify(allPerfData))
     }
   } catch (err) {
-    throw new Error(`Issue with Promise.all call: ${err.message}`)
+    const url = err.cause ? err.cause.url : ''
+    throw new Error(`Issue with Promise.all call: ${err.message} : ${url}`)
   }
   return featureLayers
 
