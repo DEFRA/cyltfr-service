@@ -156,11 +156,23 @@ const runQueries = async (x, y, queries) => {
       return riskData(query.url).then((result) => { return checkResult(result, query) })
     }
   }))
-  if (config.performanceLogging) {
-    esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
-    console.log(esriRequestUnits)
+  const results = []
+  let err = null
+  qRes.forEach((promiseresult, index) => {
+    const result = promiseresult.value
+    if (promiseresult.status === 'rejected') {
+      if (!err) {
+        err = new Error(`${promiseresult.reason}`, { cause: queries[index] })
+      }
+      console.log(`${promiseresult.reason} : %s`, JSON.stringify(queries[index]))
+    } else {
+      results[index] = result
+    }
+  })
+  if (err) {
+    throw err
   }
-  return qRes
+  return results
 }
 
 async function externalQueries (x, y, queries) {
@@ -177,18 +189,20 @@ async function externalQueries (x, y, queries) {
     try {
       results = await runQueries(x, y, queries)
     } catch (err) {
-      if (err.message === '498: Invalid token.') {
+      let retry = false
+      if (err.message === 'Error: 498: Invalid token.') {
         await refreshToken()
+        retry = true
+      } else if (err.message.startsWith('Error: 503:')) {
+        retry = true
+      }
+      if (retry) {
         results = await runQueries(x, y, queries)
       } else {
         throw err
       }
     }
-    results.forEach((promiseresult, index) => {
-      const result = promiseresult.value
-      if (promiseresult.status === 'rejected') {
-        throw new Error(`Error: ${promiseresult.reason}`, { cause: queries[index] })
-      }
+    results.forEach((result, index) => {
       if (queries[index].esriCall) {
         if (!((result.features) || (result.layers))) {
           console.log('Error: Invalid response for %s', queries[index].key)
@@ -228,6 +242,7 @@ async function externalQueries (x, y, queries) {
     if (config.performanceLogging) {
       tokenRefreshTime = performance.now() - tokenStartTime
     }
+    setTimeout(() => { appManager.token = 'invalid' }, 5000)
   }
 }
 
