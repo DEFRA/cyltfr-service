@@ -115,12 +115,12 @@ const runQueries = async (x, y, queries) => {
         spatialRel: 'esriSpatialRelIntersects', // NOSONAR
         cacheHint: true,
         returnGeometry: false,
+        geometry,
+        geometryType: 'esriGeometryPoint', // NOSONAR
         authentication: appManager.token,
         outFields: query.outFields || undefined,
         rawResponse: true
       }
-      requestOptions.geometry = geometry
-      requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
       if (query.layers) {
         requestOptions.layerDefs = {}
         query.layers.forEach((_layer, element) => {
