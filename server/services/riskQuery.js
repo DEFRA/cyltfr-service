@@ -24,7 +24,7 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
-function processEsriHeaders (response, esriRequestUnits) {
+function processEsriHeaders (response) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
     return Promise.resolve(response)
@@ -32,14 +32,7 @@ function processEsriHeaders (response, esriRequestUnits) {
   if (config.performanceLogging) {
     const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
     if (ruPerMin) {
-      const ru = ruPerMin.split(';')
-      ru[0] = parseInt(ru[0].split('=')[1])
-      if ((ru[0] < esriRequestUnits.lowest) || (esriRequestUnits.lowest === 0)) {
-        esriRequestUnits.lowest = ru[0]
-      }
-      if (ru[0] > esriRequestUnits.highest) {
-        esriRequestUnits.highest = ru[0]
-      }
+      console.log('{"RequestUnitsPerMinute" : "%s"}', ruPerMin)
     }
   }
   return Promise.resolve(response.json())
@@ -91,6 +84,19 @@ function esriRequest (requestOptions) {
   return request(`${requestOptions.url}/query`, queryOptions)
 }
 
+function bufferGeometry (x, y, querybuffer) {
+  const buffer = querybuffer / 2
+  return {
+    xmin: x - buffer,
+    ymin: y - buffer,
+    xmax: x + buffer,
+    ymax: y + buffer,
+    spatialReference: {
+      wkid: 27700
+    }
+  }
+}
+
 const runQueries = async (x, y, queries) => {
   const geometry = {
     x,
@@ -98,10 +104,6 @@ const runQueries = async (x, y, queries) => {
     spatialReference: {
       wkid: 27700
     }
-  }
-  const esriRequestUnits = {
-    lowest: 0,
-    highest: 0
   }
   const qRes = await Promise.allSettled(queries.map(query => {
     if (config.performanceLogging) {
@@ -123,16 +125,7 @@ const runQueries = async (x, y, queries) => {
           requestOptions.layerDefs[element] = ''
         })
         if (query.buffer) {
-          const buffer = query.buffer / 2
-          requestOptions.geometry = {
-            xmin: x - buffer,
-            ymin: y - buffer,
-            xmax: x + buffer,
-            ymax: y + buffer,
-            spatialReference: {
-              wkid: 27700
-            }
-          }
+          requestOptions.geometry = bufferGeometry(x, y, query.buffer)
           requestOptions.geometryType = 'esriGeometryEnvelope' // NOSONAR
         } else {
           requestOptions.geometry = geometry
@@ -147,7 +140,7 @@ const runQueries = async (x, y, queries) => {
         requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
       }
       return esriRequest(requestOptions)
-        .then((response) => { return processEsriHeaders(response, esriRequestUnits) })
+        .then((response) => { return processEsriHeaders(response) })
         .then((result) => { return checkResult(result, query) })
     } else {
       return riskData(query.url).then((result) => { return checkResult(result, query) })
