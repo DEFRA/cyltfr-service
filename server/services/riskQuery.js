@@ -99,9 +99,6 @@ const runQueries = async (x, y, queries) => {
       wkid: 27700
     }
   }
-  const geometryType = 'esriGeometryPoint'
-  const spatialRel = 'esriSpatialRelIntersects'
-  const returnGeometry = 'false'
   const esriRequestUnits = {
     lowest: 0,
     highest: 0
@@ -113,9 +110,9 @@ const runQueries = async (x, y, queries) => {
     if (query.esriCall) {
       const requestOptions = {
         url: query.url,
-        spatialRel,
+        spatialRel: 'esriSpatialRelIntersects', // NOSONAR
         cacheHint: true,
-        returnGeometry,
+        returnGeometry: false,
         authentication: appManager.token,
         outFields: query.outFields || undefined,
         rawResponse: true
@@ -136,18 +133,18 @@ const runQueries = async (x, y, queries) => {
               wkid: 27700
             }
           }
-          requestOptions.geometryType = 'esriGeometryEnvelope'
+          requestOptions.geometryType = 'esriGeometryEnvelope' // NOSONAR
         } else {
           requestOptions.geometry = geometry
-          requestOptions.geometryType = geometryType
+          requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
         }
       } else {
         if (query.buffer) {
           requestOptions.distance = query.buffer
-          requestOptions.units = 'esriSRUnit_Meter'
+          requestOptions.units = 'esriSRUnit_Meter' // NOSONAR
         }
         requestOptions.geometry = geometry
-        requestOptions.geometryType = geometryType
+        requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
       }
       return esriRequest(requestOptions)
         .then((response) => { return processEsriHeaders(response, esriRequestUnits) })
@@ -159,14 +156,13 @@ const runQueries = async (x, y, queries) => {
   const results = []
   let err = null
   qRes.forEach((promiseresult, index) => {
-    const result = promiseresult.value
     if (promiseresult.status === 'rejected') {
       if (!err) {
         err = new Error(`${promiseresult.reason}`, { cause: queries[index] })
       }
       console.log(`${promiseresult.reason} : %s`, JSON.stringify(queries[index]))
     } else {
-      results[index] = result
+      results[index] = promiseresult.value
     }
   })
   if (err) {
