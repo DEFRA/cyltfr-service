@@ -119,6 +119,8 @@ const runQueries = async (x, y, queries) => {
         outFields: query.outFields || undefined,
         rawResponse: true
       }
+      requestOptions.geometry = geometry
+      requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
       if (query.layers) {
         requestOptions.layerDefs = {}
         query.layers.forEach((_layer, element) => {
@@ -127,17 +129,12 @@ const runQueries = async (x, y, queries) => {
         if (query.buffer) {
           requestOptions.geometry = bufferGeometry(x, y, query.buffer)
           requestOptions.geometryType = 'esriGeometryEnvelope' // NOSONAR
-        } else {
-          requestOptions.geometry = geometry
-          requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
         }
       } else {
         if (query.buffer) {
           requestOptions.distance = query.buffer
           requestOptions.units = 'esriSRUnit_Meter' // NOSONAR
         }
-        requestOptions.geometry = geometry
-        requestOptions.geometryType = 'esriGeometryPoint' // NOSONAR
       }
       return esriRequest(requestOptions)
         .then((response) => { return processEsriHeaders(response) })
