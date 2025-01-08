@@ -62,14 +62,14 @@ describe('riskQuery', () => {
     })
   })
 
-  describe('API call fails due to invalid token', () => {
+  describe('API call fails', () => {
     const { request } = require('@esri/arcgis-rest-request')
 
     it('should refresh the token when an Invalid token error occurs', async () => {
       [x, y] = [460121, 431744]
       const oldToken = await _currentToken()
       request.mockImplementationOnce(() => {
-        throw new Error('498: Invalid token.')
+        return Promise.reject(new Error('498: Invalid token.'))
       })
       const result = await riskQuery(x, y)
       expect(result).toEqual(expect.objectContaining({
@@ -80,6 +80,20 @@ describe('riskQuery', () => {
       }))
 
       await expect(oldToken).not.toEqual(await _currentToken())
+    })
+
+    it('should retry when a 503 error occurs', async () => {
+      [x, y] = [460121, 431744]
+      request.mockImplementationOnce(() => {
+        return Promise.reject(new Error('503: Invalid query parameters.'))
+      })
+      const result = await riskQuery(x, y)
+      expect(result).toEqual(expect.objectContaining({
+        wetReservoirs: reservoirs.wet,
+        dryReservoirs: reservoirs.dry,
+        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        surfaceWater: []
+      }))
     })
   })
 

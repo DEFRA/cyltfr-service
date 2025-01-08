@@ -24,7 +24,7 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
-function processEsriHeaders (response, esriRequestUnits) {
+function processEsriHeaders (response) {
   // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
   if (typeof response.json !== 'function') {
     return Promise.resolve(response)
@@ -32,14 +32,7 @@ function processEsriHeaders (response, esriRequestUnits) {
   if (config.performanceLogging) {
     const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
     if (ruPerMin) {
-      const ru = ruPerMin.split(';')
-      ru[0] = parseInt(ru[0].split('=')[1])
-      if ((ru[0] < esriRequestUnits.lowest) || (esriRequestUnits.lowest === 0)) {
-        esriRequestUnits.lowest = ru[0]
-      }
-      if (ru[0] > esriRequestUnits.highest) {
-        esriRequestUnits.highest = ru[0]
-      }
+      console.log('{"RequestUnitsPerMinute" : "%s"}', ruPerMin)
     }
   }
   return Promise.resolve(response.json())
@@ -91,6 +84,19 @@ function esriRequest (requestOptions) {
   return request(`${requestOptions.url}/query`, queryOptions)
 }
 
+function bufferGeometry (x, y, querybuffer) {
+  const buffer = querybuffer / 2
+  return {
+    xmin: x - buffer,
+    ymin: y - buffer,
+    xmax: x + buffer,
+    ymax: y + buffer,
+    spatialReference: {
+      wkid: 27700
+    }
+  }
+}
+
 const runQueries = async (x, y, queries) => {
   const geometry = {
     x,
@@ -99,13 +105,6 @@ const runQueries = async (x, y, queries) => {
       wkid: 27700
     }
   }
-  const geometryType = 'esriGeometryPoint'
-  const spatialRel = 'esriSpatialRelIntersects'
-  const returnGeometry = 'false'
-  const esriRequestUnits = {
-    lowest: 0,
-    highest: 0
-  }
   const qRes = await Promise.allSettled(queries.map(query => {
     if (config.performanceLogging) {
       query.startTime = performance.now()
@@ -113,9 +112,11 @@ const runQueries = async (x, y, queries) => {
     if (query.esriCall) {
       const requestOptions = {
         url: query.url,
-        spatialRel,
+        spatialRel: 'esriSpatialRelIntersects', // NOSONAR
         cacheHint: true,
-        returnGeometry,
+        returnGeometry: false,
+        geometry,
+        geometryType: 'esriGeometryPoint', // NOSONAR
         authentication: appManager.token,
         outFields: query.outFields || undefined,
         rawResponse: true
@@ -126,41 +127,38 @@ const runQueries = async (x, y, queries) => {
           requestOptions.layerDefs[element] = ''
         })
         if (query.buffer) {
-          const buffer = query.buffer / 2
-          requestOptions.geometry = {
-            xmin: x - buffer,
-            ymin: y - buffer,
-            xmax: x + buffer,
-            ymax: y + buffer,
-            spatialReference: {
-              wkid: 27700
-            }
-          }
-          requestOptions.geometryType = 'esriGeometryEnvelope'
-        } else {
-          requestOptions.geometry = geometry
-          requestOptions.geometryType = geometryType
+          requestOptions.geometry = bufferGeometry(x, y, query.buffer)
+          requestOptions.geometryType = 'esriGeometryEnvelope' // NOSONAR
         }
       } else {
         if (query.buffer) {
           requestOptions.distance = query.buffer
-          requestOptions.units = 'esriSRUnit_Meter'
+          requestOptions.units = 'esriSRUnit_Meter' // NOSONAR
         }
-        requestOptions.geometry = geometry
-        requestOptions.geometryType = geometryType
       }
       return esriRequest(requestOptions)
-        .then((response) => { return processEsriHeaders(response, esriRequestUnits) })
+        .then((response) => { return processEsriHeaders(response) })
         .then((result) => { return checkResult(result, query) })
     } else {
       return riskData(query.url).then((result) => { return checkResult(result, query) })
     }
   }))
-  if (config.performanceLogging) {
-    esriRequestUnits.difference = esriRequestUnits.highest - esriRequestUnits.lowest
-    console.log(esriRequestUnits)
+  const results = []
+  let err = null
+  qRes.forEach((promiseresult, index) => {
+    if (promiseresult.status === 'rejected') {
+      if (!err) {
+        err = new Error(`${promiseresult.reason}`, { cause: queries[index] })
+      }
+      console.log(`${promiseresult.reason} : %s`, JSON.stringify(queries[index]))
+    } else {
+      results[index] = promiseresult.value
+    }
+  })
+  if (err) {
+    throw err
   }
-  return qRes
+  return results
 }
 
 async function externalQueries (x, y, queries) {
@@ -177,18 +175,20 @@ async function externalQueries (x, y, queries) {
     try {
       results = await runQueries(x, y, queries)
     } catch (err) {
-      if (err.message === '498: Invalid token.') {
+      let retry = false
+      if (err.message === 'Error: 498: Invalid token.') {
         await refreshToken()
+        retry = true
+      } else if (err.message.startsWith('Error: 503:')) {
+        retry = true
+      }
+      if (retry) {
         results = await runQueries(x, y, queries)
       } else {
         throw err
       }
     }
-    results.forEach((promiseresult, index) => {
-      const result = promiseresult.value
-      if (promiseresult.status === 'rejected') {
-        throw new Error(`Error: ${promiseresult.reason}`, { cause: queries[index] })
-      }
+    results.forEach((result, index) => {
       if (queries[index].esriCall) {
         if (!((result.features) || (result.layers))) {
           console.log('Error: Invalid response for %s', queries[index].key)
