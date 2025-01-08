@@ -242,7 +242,6 @@ async function externalQueries (x, y, queries) {
     if (config.performanceLogging) {
       tokenRefreshTime = performance.now() - tokenStartTime
     }
-    setTimeout(() => { appManager.token = 'invalid' }, 5000)
   }
 }
 
