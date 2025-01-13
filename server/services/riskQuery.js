@@ -6,7 +6,6 @@ const { performance } = require('node:perf_hooks')
 let riskQueries = []
 let riversSeaDepthQueries = []
 let surfaceWatchDepthQueries = []
-let reservoirQueries = []
 const fs = require('fs')
 const path = require('path')
 let riskQueriesLoaded = false
@@ -16,11 +15,9 @@ function loadRiskQueries () {
   const queryData = fs.readFileSync(path.join(filePath, 'riskQueries.json'))
   const rsData = fs.readFileSync(path.join(filePath, 'riversSeaDepth.json'))
   const swData = fs.readFileSync(path.join(filePath, 'surfaceWaterDepth.json'))
-  const reservoirData = fs.readFileSync(path.join(filePath, 'reservoirQueries.json'))
   riskQueries = JSON.parse(queryData)
   riversSeaDepthQueries = JSON.parse(rsData)
   surfaceWatchDepthQueries = JSON.parse(swData)
-  reservoirQueries = JSON.parse(reservoirData)
   riskQueriesLoaded = true
 }
 
@@ -266,10 +263,4 @@ const surfaceWaterDepth = async (x, y) => {
   return externalQueries(x, y, queries)
 }
 
-const reservoirQuery = async (x, y) => {
-  if (!riskQueriesLoaded) { loadRiskQueries() }
-  const queries = buildQueryList(reservoirQueries)
-  return externalQueries(x, y, queries)
-}
-
-module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, reservoirQuery, _currentToken }
+module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken }
