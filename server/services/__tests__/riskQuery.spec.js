@@ -1,4 +1,4 @@
-const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, reservoirQuery, _currentToken } = require('../riskQuery')
+const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
 jest.mock('../../config')
 jest.mock('node-fetch')
 jest.mock('@esri/arcgis-rest-request')
@@ -113,7 +113,7 @@ describe('riskQuery', () => {
   describe('Reservoir queries', () => {
     test('a reservoir query', async () => {
       [x, y] = [460121, 431744]
-      const result = await reservoirQuery(x, y)
+      const result = await riskQuery(x, y)
       expect(result).toEqual(expect.objectContaining({
         wetReservoirs: reservoirs.wet,
         dryReservoirs: reservoirs.dry
