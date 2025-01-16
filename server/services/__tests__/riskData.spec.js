@@ -1,4 +1,5 @@
 const { riskData } = require('../riskData')
+jest.mock('../../config')
 
 describe('riskData', () => {
   let x, y

@@ -1,18 +1,8 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const { riskQuery } = require('../services/riskQuery')
-const RiskOverrideLevels = [
-  'very low',
-  'low',
-  'medium',
-  'high'
-]
-const RiskLevels = [
-  'Very Low',
-  'Low',
-  'Medium',
-  'High'
-]
+const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
+const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHighestRiskBand')
 
 module.exports = {
   method: 'GET',
@@ -31,91 +21,58 @@ module.exports = {
         return boom.badRequest('Invalid result', new Error('Invalid query response'))
       }
 
+      let riverAndSeaRisk = null
+      let riverAndSeaRiskCC = null
+
       /*
         * If we get here we can be sure we have a valid result from
         * the ESRI database and we can start to prepare our return response
         */
-      let reservoirDryRisk = null
-      let reservoirWetRisk = null
-      let riverAndSeaRisk = null
-      let riverAndSeaRiskCC = null
+      const reservoirDryRisk = getReservoirDryRisk(riskQueryResult)
 
-      if (riskQueryResult.dryReservoirs?.length > 0) {
-        reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
-          return {
-            reservoirName: item.attributes.reservoir,
-            location: item.attributes.ngr,
-            riskDesignation: item.attributes.risk_designation,
-            undertaker: item.attributes.undertaker,
-            leadLocalFloodAuthority: item.attributes.llfa_name,
-            comments: item.attributes.comments
-          }
-        })
-      } else {
-        reservoirDryRisk = riskQueryResult.dryReservoirs
-      }
+      const reservoirWetRisk = getReservoirWetRisk(riskQueryResult)
 
-      if (riskQueryResult.wetReservoirs?.length > 0) {
-        reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
-          return {
-            reservoirName: item.attributes.RESERVOIR,
-            location: item.attributes.NGR,
-            riskDesignation: item.attributes.RISK_DESIGNATION,
-            undertaker: item.attributes.UNDERTAKER,
-            leadLocalFloodAuthority: item.attributes.LLFA_NAME,
-            comments: item.attributes.COMMENTS
-          }
-        })
-      } else {
-        reservoirWetRisk = riskQueryResult.wetReservoirs
-      }
-      if (riskQueryResult.riversAndSea?.[0]) {
-        const riskBand = riskQueryResult.riversAndSea[0].attributes.Risk_band
+      const rAndSband = getHighestRiskBand(riskQueryResult.riversAndSea)
+      if (rAndSband) {
         riverAndSeaRisk = {
-          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(rAndSband.toLowerCase())] || rAndSband
         }
       }
-      if (riskQueryResult.riversAndSeaCC?.[0]) {
-        const riskBand = riskQueryResult.riversAndSeaCC[0].attributes.Risk_band
+
+      const rAndSbandCC = getHighestRiskBand(riskQueryResult.riversAndSeaCC)
+      if (rAndSbandCC) {
         riverAndSeaRiskCC = {
-          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(riskBand.toLowerCase())] || riskBand
+          probabilityForBand: RiskLevels[RiskOverrideLevels.indexOf(rAndSbandCC.toLowerCase())] || rAndSbandCC
         }
       }
 
       let isGroundwaterArea = false
-      const floodAlertList = []
-      riskQueryResult.floodAlertAreas?.forEach((area) => {
-        floodAlertList.push(area.attributes.FWS_TACODE)
-      })
-      const floodWarningList = []
-      riskQueryResult.floodWarningAreas?.forEach((area) => {
-        floodWarningList.push(area.attributes.FWS_TACODE)
-      })
 
-      const floodAlertAreas = floodAlertList
-      const floodWarningAreas = floodWarningList
-      const fifthChar = 5
+      const floodAlertAreas = processAreaList(riskQueryResult.floodAlertAreas)
+      const floodWarningAreas = processAreaList(riskQueryResult.floodWarningAreas)
 
-      if (floodAlertAreas.find((faa) => faa.charAt(fifthChar) === 'G') || floodWarningAreas.find((fwa) => fwa.charAt(fifthChar) === 'G')) {
+      if (groundWaterAreaCheck(floodAlertAreas) || groundWaterAreaCheck(floodWarningAreas)) {
         isGroundwaterArea = true
       }
+
+      const llfa = riskQueryResult.llfa ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
 
       const response = {
         isGroundwaterArea,
         floodAlertAreas,
         floodWarningAreas,
-        leadLocalFloodAuthority: riskQueryResult.llfa[0].attributes.name,
+        leadLocalFloodAuthority: llfa,
         reservoirDryRisk,
         reservoirWetRisk,
         riverAndSeaRisk,
         riverAndSeaRiskCC,
-        surfaceWaterRisk: Array.isArray(riskQueryResult.surfaceWater) && riskQueryResult.surfaceWater[0] ? riskQueryResult.surfaceWater[0].attributes.Risk_band : undefined,
-        surfaceWaterRiskCC: Array.isArray(riskQueryResult.surfaceWaterCC) && riskQueryResult.surfaceWaterCC[0] ? riskQueryResult.surfaceWaterCC[0].attributes.Risk_band : undefined,
+        surfaceWaterRisk: getHighestRiskBand(riskQueryResult.surfaceWater),
+        surfaceWaterRiskCC: getHighestRiskBand(riskQueryResult.surfaceWaterCC),
         extraInfo: riskQueryResult.extrainfo
       }
 
       const processExtraInfo = (item) => {
-        if ((item.riskoverride !== null) && (item.apply === 'holding')) {
+        if ((item.riskoverride) && (item.apply === 'holding')) {
           const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
           if (riskOverride >= 0) {
             response.surfaceWaterRisk = RiskLevels[riskOverride]

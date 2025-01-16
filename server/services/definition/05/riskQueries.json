@@ -1,0 +1,34 @@
+[
+  {
+    "key": "surfaceWater",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_0mm_NON_PRODUCTION/FeatureServer/0",
+    "outFields": "Risk_band"
+  },
+  {
+    "layers": [
+      "riversAndSea",
+      "riversAndSeaCC"
+    ],
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Check_Your_Long_Term_Flood_Risk_Rivers_and_Sea_Query_Layer_NON_PRODUCTION/FeatureServer",
+    "outFields": "Risk_band"
+  },
+  {
+    "layers": [
+      "floodWarningAreas",
+      "floodAlertAreas",
+      "llfa"
+    ],
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Check_Your_Long_Term_Flood_Risk_Target_Area_Query_Layer_NON_PRODUCTION/FeatureServer"
+  },
+  {
+    "key": "dryReservoirs",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Reservoir_Flood_Extents_Merged_NON_PRODUCTION/FeatureServer/0",
+    "outFields": "Risk_band"
+  },
+  {
+    "key": "surfaceWaterCC",
+    "url": "https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/Risk_of_Flooding_from_Surface_Water_Depth_CCSW1_0mm_NON_PRODUCTION/FeatureServer/0",
+    "outFields": "Risk_band"
+  }
+ 
+]

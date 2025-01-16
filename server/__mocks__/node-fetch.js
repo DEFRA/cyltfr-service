@@ -15,11 +15,12 @@ const ResponseInit = {
 }
 
 const downloadDocumentData = { data: {} }
-const getDocList = new Response(
-  JSON.stringify(downloadDocumentData),
-  ResponseInit
-)
-const fetch = jest.fn(() => { return Promise.resolve(getDocList) })
+const fetch = jest.fn(() => {
+  return Promise.resolve(new Response(
+    JSON.stringify(downloadDocumentData),
+    ResponseInit
+  ))
+})
 
 module.exports = exports = fetch
 Object.defineProperty(exports, '__esModule', { value: true })

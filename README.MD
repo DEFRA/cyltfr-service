@@ -15,10 +15,15 @@
 [![Licence](https://img.shields.io/badge/licence-OGLv3-blue.svg)](http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3)
 
 # Check Your Long Term Flood Risk Services (cyltfr-service)
-Repo for the Check Your Long Term Flood services back end service.
+Repo for the Check Your Long Term Flood (CYLTFR) services back end service.
+
+This repository is part of the CYLTFR service which also includes:\
+<https://github.com/DEFRA/cyltfr-app>\
+<https://github.com/DEFRA/cyltfr-data>\
+<https://github.com/DEFRA/cyltfr-admin>
 
 ## Prerequisites
-Node v20.x
+Node v20.x/
 Docker v20.10.0+
 
 ### Start service
@@ -33,13 +38,17 @@ Docker v20.10.0+
 
 do http `GET` on `http://{host}:{port}/floodrisk/{x}/{y}/radius`
 
-# Environment variables (TODO: These are currently loaded via the config/server.json file not env vars)
-| name     |      description      | required  |   default   |            valid            | notes |
-|----------|-----------------------|:---------:|-------------|:---------------------------:|-------|
-| NODE_ENV | Node environment      |    no     | development | development,test,production |       |
-| HOST     | Hostname              |    yes    |             |                             |       |
-| PORT     | Port number           |    yes    |             |                             |       |
-| DB       | DB Connection String  |    yes    |             |                             |       |
+# Environment variables
+| name                | description                    | required  |   default   |            valid              | notes |
+|---------------------|--------------------------------|:---------:|-------------|:-----------------------------:|-------|
+| NODE_ENV            | Node environment               |    no     | dev         | dev,test,prod-green,prod-blue |       |
+| HOST                | Hostname                       |    no     | 0.0.0.0     |                               |       |
+| PORT                | Port number                    |    no     | 3000        |                               |       |
+| DATA_VERSION        | Version number of data         |    no     | 01          |                               |       |
+| PERFORMANCE_LOGGING | Log detailed query times       |    no     | false       |                               |       |
+| RISK_DATA_URL       | Url of the cyltfr-data service |    yes    |             |                               |       |
+| ESRI_CLIENT_ID      | Client ID number for ESRI      |    yes    |             |                               |       |
+| ESRI_CLIENT_SECRET  | ESRI Client secret             |    yes    |             |                               |       |
 
 # Prerequisites
 
@@ -97,19 +106,16 @@ or
 
 `$ npm run cx`
 
-## Contributing to this project
-Please read our [contribution guidelines](https://github.com/DEFRA/cyltfr-service/blob/develop/CONTRIBUTING.md)
-
 ## License
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
 
-http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3
+<http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3>
 
 The following attribution statement MUST be cited in your products and applications when using this information.
 
-Contains public sector information licensed under the Open Government license v3
+>Contains public sector information licensed under the Open Government licence v3
 
 ### About the license
-The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
+The Open Government Licence (OGL) was developed by the Controller of His Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.

@@ -1,13 +1,16 @@
 const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
-
-jest.mock('@esri/arcgis-rest-feature-service')
+jest.mock('../../config')
+jest.mock('node-fetch')
 jest.mock('@esri/arcgis-rest-request')
-jest.mock('../riskData')
-jest.mock('../../config', () => ({
-  dataVersion: '01',
-  esriClientId: 'mock-client-id',
-  esriClientSecret: 'mock-client-secret'
-}))
+const config = require('../../config')
+
+beforeAll(async () => {
+  config.setConfigOptions({ performanceLogging: false })
+})
+
+afterAll(async () => {
+  config.setConfigOptions({ performanceLogging: false })
+})
 
 describe('riskQuery', () => {
   let x, y
@@ -17,6 +20,10 @@ describe('riskQuery', () => {
       [x, y] = [564228, 263339]
       const result = await riskQuery(x, y)
       expect(result).toEqual(expect.objectContaining(returnedQuery))
+    })
+    test('High risk of rivers and the sea and surface water, no reservoirs, flood alert and warning, no llfa', async () => {
+      [x, y] = [564228, 263338]
+      await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Invalid response for llfa')
     })
 
     test('Very low risk of rivers and the sea and surface water, no reservoirs should be empty arrays', async () => {
@@ -43,26 +50,26 @@ describe('riskQuery', () => {
   })
 
   describe('if API call fails', () => {
-    const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
+    const { request } = require('@esri/arcgis-rest-request')
 
-    it('should throw an error when queryFeatures queryFeatures call breaks', async () => {
+    it('should throw an error when arcgis request call breaks', async () => {
       [x, y] = [123, 456]
-      queryFeatures.mockImplementationOnce(() => {
-        throw new Error('Mock queryFeatures error')
+      request.mockImplementationOnce(() => {
+        throw new Error('Mock request error')
       })
 
-      await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Mock queryFeatures error')
+      await expect(riskQuery(x, y)).rejects.toThrow('Issue with Promise.all call: Mock request error')
     })
   })
 
-  describe('API call fails due to invalid token', () => {
-    const { queryFeatures } = require('@esri/arcgis-rest-feature-service')
+  describe('API call fails', () => {
+    const { request } = require('@esri/arcgis-rest-request')
 
     it('should refresh the token when an Invalid token error occurs', async () => {
       [x, y] = [460121, 431744]
       const oldToken = await _currentToken()
-      queryFeatures.mockImplementationOnce(() => {
-        throw new Error('498: Invalid token.')
+      request.mockImplementationOnce(() => {
+        return Promise.reject(new Error('498: Invalid token.'))
       })
       const result = await riskQuery(x, y)
       expect(result).toEqual(expect.objectContaining({
@@ -73,6 +80,20 @@ describe('riskQuery', () => {
       }))
 
       await expect(oldToken).not.toEqual(await _currentToken())
+    })
+
+    it('should retry when a 503 error occurs', async () => {
+      [x, y] = [460121, 431744]
+      request.mockImplementationOnce(() => {
+        return Promise.reject(new Error('503: Invalid query parameters.'))
+      })
+      const result = await riskQuery(x, y)
+      expect(result).toEqual(expect.objectContaining({
+        wetReservoirs: reservoirs.wet,
+        dryReservoirs: reservoirs.dry,
+        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        surfaceWater: []
+      }))
     })
   })
 
@@ -86,6 +107,17 @@ describe('riskQuery', () => {
       [x, y] = [400000, 500000]
       const result = await surfaceWaterDepth(x, y)
       expect(result).toMatchObject(swDepthQuery)
+    })
+  })
+
+  describe('Reservoir queries', () => {
+    test('a reservoir query', async () => {
+      [x, y] = [460121, 431744]
+      const result = await riskQuery(x, y)
+      expect(result).toEqual(expect.objectContaining({
+        wetReservoirs: reservoirs.wet,
+        dryReservoirs: reservoirs.dry
+      }))
     })
   })
 })

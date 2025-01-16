@@ -7,7 +7,7 @@ const options = {
   url: '/floodrisk/564228/263339/20'
 }
 
-jest.mock('@esri/arcgis-rest-feature-service')
+jest.mock('../../config')
 jest.mock('@esri/arcgis-rest-request')
 jest.mock('../../services/riskQuery')
 let server
@@ -24,6 +24,20 @@ describe('Unit tests - /floodrisk', () => {
 
   test('Normal get returns the payload', async () => {
     riskQuery._queryResult(testData.getEmptyData())
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('Empty LLFA doesn\'t error', async () => {
+    riskQuery._queryResult(testData.getNoLLFAData())
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('Empty risk override doesn\'t error', async () => {
+    riskQuery._queryResult(testData.getNoRiskOverrideData())
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
@@ -97,6 +111,17 @@ describe('Unit tests - /floodrisk', () => {
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+  })
+
+  test('/floodrisk/{x}/{y}/{radius} - Extra info result', async () => {
+    const inputData = testData.getValidData()
+    // The extra info contains a surface water override that will change the High to Low
+    inputData.extrainfo = testData.getExtraInfo()
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
   test('/floodrisk/{x}/{y}/{radius} - Extra info result', async () => {

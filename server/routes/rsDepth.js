@@ -1,18 +1,7 @@
 const joi = require('joi')
 const boom = require('@hapi/boom')
 const { riversAndSeaDepth } = require('../services/riskQuery')
-const RiskOverrideLevels = [
-  'very low',
-  'low',
-  'medium',
-  'high'
-]
-const RiskLevels = [
-  'Very Low',
-  'Low',
-  'Medium',
-  'High'
-]
+const { getHighestRiskBand } = require('./getHighestRiskBand')
 
 module.exports = {
   method: 'GET',
@@ -23,11 +12,6 @@ module.exports = {
       const params = request.params
 
       const rsDepthResult = await riversAndSeaDepth(params.x, params.y)
-
-      const getBand = (data) => {
-        const riskBand = Array.isArray(data) && data[0] ? data[0].attributes.Risk_band : undefined
-        return RiskLevels[RiskOverrideLevels.indexOf(riskBand?.toLowerCase())] || riskBand
-      }
 
       /*
         * Do some assertions around the result we get back from the database
@@ -42,16 +26,16 @@ module.exports = {
         */
       const response = {
         200: {
-          current: getBand(rsDepthResult.riversAndSeaDepth200mm),
-          cc: getBand(rsDepthResult.riversAndSeaCCDepth200mm)
+          current: getHighestRiskBand(rsDepthResult.riversAndSeaDepth200mm),
+          cc: getHighestRiskBand(rsDepthResult.riversAndSeaCCDepth200mm)
         },
         300: {
-          current: getBand(rsDepthResult.riversAndSeaDepth300mm),
-          cc: getBand(rsDepthResult.riversAndSeaCCDepth300mm)
+          current: getHighestRiskBand(rsDepthResult.riversAndSeaDepth300mm),
+          cc: getHighestRiskBand(rsDepthResult.riversAndSeaCCDepth300mm)
         },
         600: {
-          current: getBand(rsDepthResult.riversAndSeaDepth600mm),
-          cc: getBand(rsDepthResult.riversAndSeaCCDepth600mm)
+          current: getHighestRiskBand(rsDepthResult.riversAndSeaDepth600mm),
+          cc: getHighestRiskBand(rsDepthResult.riversAndSeaCCDepth600mm)
         }
       }
 

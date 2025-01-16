@@ -15,6 +15,10 @@ const _rsData = (newResult) => {
   result.rsData = newResult
 }
 
+const _resData = (newResult) => {
+  result.resData = newResult
+}
+
 riskQuery.mockImplementation(() => {
   return Promise.resolve(result.data)
 })
@@ -27,11 +31,17 @@ const surfaceWaterDepth = jest.fn().mockImplementation(() => {
   return Promise.resolve(result.swData)
 })
 
+const reservoirQuery = jest.fn().mockImplementation(() => {
+  return Promise.resolve(result.resData)
+})
+
 module.exports = {
   riskQuery,
   riversAndSeaDepth,
   surfaceWaterDepth,
+  reservoirQuery,
   _queryResult,
   _swData,
-  _rsData
+  _rsData,
+  _resData
 }

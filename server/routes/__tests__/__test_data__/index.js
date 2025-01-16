@@ -26,10 +26,12 @@ const validDataRow = {
       }
     }],
   surfaceWater: [
+    { attributes: { Risk_band: 'Low' } },
     { attributes: { Risk_band: 'High' } }
   ],
   surfaceWaterCC: [
-    { attributes: { Risk_band: 'High' } }
+    { attributes: { Risk_band: 'High' } },
+    { attributes: { Risk_band: 'Low' } }
   ],
   dryReservoirs: [
     {
@@ -73,6 +75,21 @@ const emptyDataRow = {
   ],
   extrainfo: null
 }
+const nollfaDataRow = {
+  floodAlertAreas: null,
+  floodWarningAreas: null,
+  riversAndSea: null,
+  surfaceWater: null,
+  riversAndSeaCC: [
+    {
+      attributes: {
+        Risk_band: 'No data'
+      }
+    }],
+  surfaceWaterCC: null,
+  dryReservoirs: null,
+  extrainfo: null
+}
 const extraInfo = [{
   info: '',
   apply: 'holding',
@@ -112,8 +129,18 @@ const getEmptyData = function () {
   return { ...emptyDataRow }
 }
 
+const getNoLLFAData = function () {
+  return { ...nollfaDataRow }
+}
+
 const getExtraInfo = function () {
   return extraInfo
+}
+
+const getNoRiskOverrideData = function () {
+  const retval = { ...nollfaDataRow }
+  retval.extrainfo = [{ risktype: 'Rivers and the sea', info: 'Test data', apply: 'holding' }]
+  return retval
 }
 
 const validRsDepth = {
@@ -154,7 +181,9 @@ const getValidSwDepth = () => {
 module.exports = {
   getValidData,
   getEmptyData,
+  getNoLLFAData,
   getExtraInfo,
   getValidRsDepth,
-  getValidSwDepth
+  getValidSwDepth,
+  getNoRiskOverrideData
 }
