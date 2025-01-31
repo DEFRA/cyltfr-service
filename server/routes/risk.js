@@ -55,7 +55,7 @@ module.exports = {
         isGroundwaterArea = true
       }
 
-      const llfa = riskQueryResult.llfa ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
+      const llfa = riskQueryResult.llfa?.length > 0 ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
 
       const response = {
         isGroundwaterArea,
