@@ -6,7 +6,7 @@ const schema = joi.object().keys({
   host: joi.string().hostname().default('0.0.0.0'),
   port: joi.number().integer().default(3000), // NOSONAR
   performanceLogging: joi.boolean().default(false),
-  dataVersion: joi.string().default('01'),
+  dataVersion: joi.string().default('test'),
   esriClientId: joi.string().required(),
   esriClientSecret: joi.string().required(),
   riskDataUrl: joi.string().required()
