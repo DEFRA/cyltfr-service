@@ -36,7 +36,7 @@ Docker v20.10.0+
 
 ### Use service
 
-do http `GET` on `http://{host}:{port}/floodrisk/{x}/{y}/radius`
+do http `GET` on `http://{host}:{port}/floodrisk/{x}/{y}`
 
 # Environment variables
 | name                | description                    | required  |   default   |            valid              | notes |
