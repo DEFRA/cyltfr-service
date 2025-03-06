@@ -6,7 +6,7 @@ const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHig
 
 module.exports = {
   method: 'GET',
-  path: '/floodrisk/{x}/{y}/{radius}',
+  path: '/floodrisk/{x}/{y}',
   options: {
     description: 'Get the long term flood risk associated with a point',
     handler: async (request, _h) => {
@@ -89,8 +89,7 @@ module.exports = {
     validate: {
       params: joi.object().keys({
         x: joi.number().required(),
-        y: joi.number().required(),
-        radius: joi.number().required()
+        y: joi.number().required()
       }).required()
     }
   }
