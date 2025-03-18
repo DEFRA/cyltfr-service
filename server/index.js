@@ -1,11 +1,15 @@
-const hapi = require('@hapi/hapi')
-const config = require('./config')
+import Hapi from '@hapi/hapi'
+import { dataConfig } from './config.js'
+import { plugin as router } from './plugins/router.js'
+import logErrors from './plugins/log-errors.js'
+import logging from './plugins/logging.js'
+import blipp from 'blipp'
 
 async function createServer () {
   // Create the hapi server
-  const server = hapi.server({
-    host: config.host,
-    port: config.port,
+  const server = Hapi.server({
+    host: dataConfig.host,
+    port: dataConfig.port,
     routes: {
       validate: {
         options: {
@@ -16,15 +20,15 @@ async function createServer () {
   })
 
   // Register the plugins
-  await server.register(require('./plugins/router'))
-  await server.register(require('./plugins/log-errors'))
-  await server.register(require('./plugins/logging'))
+  await server.register(router)
+  await server.register(logErrors)
+  await server.register(logging)
+
   try {
-    // this is a dev only dependency
-    await server.register(require('blipp'))
+    await server.register(blipp)
   } catch {}
 
   return server
 }
 
-module.exports = createServer
+export { createServer }

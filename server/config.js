@@ -1,4 +1,4 @@
-const joi = require('joi')
+import joi from 'joi'
 
 // Define config schema
 const schema = joi.object().keys({
@@ -30,17 +30,18 @@ const result = schema.validate(config, {
 
 // Throw if config is invalid
 if (result.error) {
-  throw new Error(`The server config is invalid. ${result.error.message}`)
+  throw new Error(`Config validation error: ${result.error.message}`)
 }
 
 // Use the joi validated value
-const value = result.value
+const dataConfig = result.value
 
 // Add some helper props
-value.isDev = value.env === 'dev'
-value.isTest = value.env === 'test'
-value.isProd = value.env.startsWith('prod-')
+dataConfig.isDev = dataConfig.env === 'dev'
+dataConfig.isTest = dataConfig.env === 'test'
+dataConfig.isProd = dataConfig.env.startsWith('prod-')
+if (process.env.JEST_WORKER_ID === undefined) {
+  console.log('Server config', dataConfig)
+}
 
-console.log('Server config', value)
-
-module.exports = value
+export { dataConfig }

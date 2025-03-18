@@ -1,5 +1,5 @@
-require('dotenv/config')
-const createServer = require('./server')
+import 'dotenv/config'
+import createServer from './server/index.js'
 
 createServer()
   .then(server => server.start())

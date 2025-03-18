@@ -6,11 +6,9 @@ const routes = [].concat(
   require('../routes/healthcheck')
 )
 
-module.exports = {
-  plugin: {
-    name: 'router',
-    register: (server, _options) => {
-      server.route(routes)
-    }
+export const plugin = {
+  name: 'router',
+  register: (server, _options) => {
+    server.route(routes)
   }
 }

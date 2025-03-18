@@ -2,7 +2,7 @@
 * Add an `onPreResponse` listener to return error pages
 */
 
-module.exports = {
+export default {
   plugin: {
     name: 'log-errors',
     register: (server, _options) => {
