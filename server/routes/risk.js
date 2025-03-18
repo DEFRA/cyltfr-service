@@ -1,10 +1,10 @@
-const joi = require('joi')
-const boom = require('@hapi/boom')
-const { riskQuery } = require('../services/riskQuery')
-const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
-const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHighestRiskBand')
+import joi from 'joi'
+import boom from '@hapi/boom'
+import { riskQuery } from '../services/riskQuery.js'
+import { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } from '../services/processReservoirRisk.js'
+import { getHighestRiskBand, RiskLevels, RiskOverrideLevels } from './getHighestRiskBand'
 
-module.exports = {
+export default {
   method: 'GET',
   path: '/floodrisk/{x}/{y}',
   options: {

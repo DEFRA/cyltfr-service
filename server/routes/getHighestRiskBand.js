@@ -1,17 +1,17 @@
-const RiskOverrideLevels = [
+export const RiskOverrideLevels = [
   'very low',
   'low',
   'medium',
   'high'
 ]
-const RiskLevels = [
+export const RiskLevels = [
   'Very Low',
   'Low',
   'Medium',
   'High'
 ]
 
-const getHighestRiskBand = (riskBands) => {
+export const getHighestRiskBand = (riskBands) => {
   let retval
   if (Array.isArray(riskBands) && riskBands.length) {
     retval = riskBands.reduce((acc, curr) => {
@@ -23,7 +23,3 @@ const getHighestRiskBand = (riskBands) => {
   }
   return retval ? retval.attributes.Risk_band : null
 }
-
-exports.getHighestRiskBand = getHighestRiskBand
-exports.RiskOverrideLevels = RiskOverrideLevels
-exports.RiskLevels = RiskLevels

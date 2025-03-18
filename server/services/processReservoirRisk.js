@@ -1,4 +1,4 @@
-function getReservoirWetRisk (riskQueryResult) {
+export function getReservoirWetRisk (riskQueryResult) {
   let reservoirWetRisk
   if (riskQueryResult.wetReservoirs?.length > 0) {
     reservoirWetRisk = riskQueryResult.wetReservoirs.map(function (item) {
@@ -16,8 +16,8 @@ function getReservoirWetRisk (riskQueryResult) {
   }
   return reservoirWetRisk
 }
-exports.getReservoirWetRisk = getReservoirWetRisk
-function getReservoirDryRisk (riskQueryResult) {
+
+export function getReservoirDryRisk (riskQueryResult) {
   let reservoirDryRisk
   if (riskQueryResult.dryReservoirs?.length > 0) {
     reservoirDryRisk = riskQueryResult.dryReservoirs.map(function (item) {
@@ -35,19 +35,15 @@ function getReservoirDryRisk (riskQueryResult) {
   }
   return reservoirDryRisk
 }
-exports.getReservoirDryRisk = getReservoirDryRisk
 
-const processAreaList = (areaList) => {
+export const processAreaList = (areaList) => {
   const areaListReturn = []
   areaList?.forEach((area) => {
     areaListReturn.push(area.attributes.FWS_TACODE)
   })
   return areaListReturn
 }
-exports.processAreaList = processAreaList
 
-const groundWaterAreaCheck = (areas) => {
+export const groundWaterAreaCheck = (areas) => {
   return areas.find((area) => area.charAt(5) === 'G') // NOSONAR
 }
-
-exports.groundWaterAreaCheck = groundWaterAreaCheck

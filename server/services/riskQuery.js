@@ -1,17 +1,17 @@
-const { ApplicationCredentialsManager, request, appendCustomParams } = require('@esri/arcgis-rest-request')
-const { riskData } = require('./riskData')
-const config = require('../config')
-const { performance } = require('node:perf_hooks')
+import { ApplicationCredentialsManager, request, appendCustomParams } from '@esri/arcgis-rest-request'
+import { riskData } from './riskData.js'
+import { dataConfig } from '../config.js'
+import { performance } from 'node:perf_hooks'
+import fs from 'fs'
+import path from 'path'
 
 let riskQueries = []
 let riversSeaDepthQueries = []
 let surfaceWatchDepthQueries = []
-const fs = require('fs')
-const path = require('path')
 let riskQueriesLoaded = false
 
 function loadRiskQueries () {
-  const filePath = path.join('./server/services/definition/', config.dataVersion)
+  const filePath = path.join('./server/services/definition/', dataConfig.dataVersion)
   const queryData = fs.readFileSync(path.join(filePath, 'riskQueries.json'))
   const rsData = fs.readFileSync(path.join(filePath, 'riversSeaDepth.json'))
   const swData = fs.readFileSync(path.join(filePath, 'surfaceWaterDepth.json'))
@@ -26,7 +26,7 @@ function processEsriHeaders (response) {
   if (typeof response.json !== 'function') {
     return Promise.resolve(response)
   }
-  if (config.performanceLogging) {
+  if (dataConfig.performanceLogging) {
     const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
     if (ruPerMin) {
       console.log('{"RequestUnitsPerMinute" : "%s"}', ruPerMin)
@@ -41,7 +41,7 @@ function checkResult (result, query) {
       console.log('Error: %s', result.error.message)
       throw new Error(`${result.error.code}: ${result.error.message}`)
     }
-    if (config.performanceLogging) {
+    if (dataConfig.performanceLogging) {
       const perfData = {
         startTime: query.startTime,
         endTime: performance.now(),
@@ -60,8 +60,8 @@ function checkResult (result, query) {
 }
 
 const appManager = ApplicationCredentialsManager.fromCredentials({
-  clientId: config.esriClientId,
-  clientSecret: config.esriClientSecret
+  clientId: dataConfig.esriClientId,
+  clientSecret: dataConfig.esriClientSecret
 })
 
 async function _currentToken () {
@@ -103,7 +103,7 @@ const runQueries = async (x, y, queries) => {
     }
   }
   const qRes = await Promise.allSettled(queries.map(query => {
-    if (config.performanceLogging) {
+    if (dataConfig.performanceLogging) {
       query.startTime = performance.now()
     }
     if (query.esriCall) {
@@ -203,11 +203,11 @@ async function externalQueries (x, y, queries) {
       } else {
         featureLayers[queries[index].key] = result
       }
-      if (config.performanceLogging) {
+      if (dataConfig.performanceLogging) {
         allPerfData.push(queries[index].perfData)
       }
     })
-    if (config.performanceLogging) {
+    if (dataConfig.performanceLogging) {
       console.log('{"TokenRefreshTime" : %d}', tokenRefreshTime)
       console.log(JSON.stringify(allPerfData))
     }
@@ -218,11 +218,11 @@ async function externalQueries (x, y, queries) {
   return featureLayers
 
   async function refreshToken () {
-    if (config.performanceLogging) {
+    if (dataConfig.performanceLogging) {
       tokenStartTime = performance.now()
     }
     await appManager.refreshToken()
-    if (config.performanceLogging) {
+    if (dataConfig.performanceLogging) {
       tokenRefreshTime = performance.now() - tokenStartTime
     }
   }
@@ -245,7 +245,7 @@ const riskQuery = async (x, y) => {
   queries.push({
     esriCall: false,
     key: 'extrainfo',
-    url: `${config.riskDataUrl}/${x}/${y}`
+    url: `${dataConfig.riskDataUrl}/${x}/${y}`
   })
 
   return externalQueries(x, y, queries)

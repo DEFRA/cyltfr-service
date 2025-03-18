@@ -1,6 +1,6 @@
-const http = require('node:http')
-const https = require('node:https')
-const fetch = require('node-fetch')
+import http from 'node:http'
+import https from 'node:https'
+import fetch from 'node-fetch'
 
 const httpAgent = new http.Agent({
   keepAlive: false
@@ -22,4 +22,4 @@ async function riskData (url) {
   return fetch(url, options).then(res => res.json())
 }
 
-module.exports = { riskData }
+export { riskData }
