@@ -23,10 +23,7 @@ async function createServer () {
   await server.register(router)
   await server.register(logErrors)
   await server.register(logging)
-
-  try {
-    await server.register(blipp)
-  } catch {}
+  await server.register(blipp)
 
   return server
 }

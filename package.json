@@ -31,14 +31,14 @@
     "@esri/arcgis-rest-request": "^4.2.3",
     "@hapi/boom": "^10.0.1",
     "@hapi/hapi": "^21.3.9",
+    "blipp": "4.0.2",
     "dotenv": "^16.4.5",
     "hapi-pino": "12.1.0",
     "joi": "^17.13.1",
-    "node-fetch": "^2.7.0",
+    "node-fetch": "^3.3.2",
     "pg": "^8.11.1"
   },
   "devDependencies": {
-    "blipp": "4.0.2",
     "husky": "^9.0.11",
     "jest": "^29.7.0",
     "lint-staged": "^15.2.7",
