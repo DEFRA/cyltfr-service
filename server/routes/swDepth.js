@@ -1,9 +1,9 @@
-const joi = require('joi')
-const boom = require('@hapi/boom')
-const { surfaceWaterDepth } = require('../services/riskQuery')
-const { getHighestRiskBand } = require('./getHighestRiskBand')
+import joi from 'joi'
+import boom from '@hapi/boom'
+import { surfaceWaterDepth } from '../services/riskQuery.js'
+import { getHighestRiskBand } from './getHighestRiskBand.js'
 
-module.exports = {
+export default {
   method: 'GET',
   path: '/swdepth/{x}/{y}',
   options: {

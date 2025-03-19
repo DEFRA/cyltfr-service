@@ -2,7 +2,7 @@ import joi from 'joi'
 import boom from '@hapi/boom'
 import { riskQuery } from '../services/riskQuery.js'
 import { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } from '../services/processReservoirRisk.js'
-import { getHighestRiskBand, RiskLevels, RiskOverrideLevels } from './getHighestRiskBand'
+import { getHighestRiskBand, RiskLevels, RiskOverrideLevels } from './getHighestRiskBand.js'
 
 export default {
   method: 'GET',

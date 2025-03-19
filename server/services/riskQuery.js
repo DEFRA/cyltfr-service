@@ -263,4 +263,4 @@ const surfaceWaterDepth = async (x, y) => {
   return externalQueries(x, y, queries)
 }
 
-module.exports = { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken }
+export { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken }
