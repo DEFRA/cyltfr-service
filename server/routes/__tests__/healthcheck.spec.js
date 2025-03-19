@@ -1,5 +1,6 @@
-const STATUS_CODES = require('http2').constants
-const createServer = require('../../index')
+import { constants as STATUS_CODES } from 'http2'
+import { createServer } from '../../index.js'
+
 let server
 
 jest.mock('../../config')

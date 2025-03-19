@@ -1,15 +1,17 @@
-const { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } = require('../riskQuery')
+import { riskQuery, riversAndSeaDepth, surfaceWaterDepth, _currentToken } from '../riskQuery.js'
+import { dataConfig } from '../../config.js'
+import { request } from '@esri/arcgis-rest-request'
+
 jest.mock('../../config')
 jest.mock('node-fetch')
 jest.mock('@esri/arcgis-rest-request')
-const config = require('../../config')
 
 beforeAll(async () => {
-  config.setConfigOptions({ performanceLogging: false })
+  dataConfig.setConfigOptions({ performanceLogging: false })
 })
 
 afterAll(async () => {
-  config.setConfigOptions({ performanceLogging: false })
+  dataConfig.setConfigOptions({ performanceLogging: false })
 })
 
 describe('riskQuery', () => {
@@ -50,8 +52,6 @@ describe('riskQuery', () => {
   })
 
   describe('if API call fails', () => {
-    const { request } = require('@esri/arcgis-rest-request')
-
     it('should throw an error when arcgis request call breaks', async () => {
       [x, y] = [123, 456]
       request.mockImplementationOnce(() => {
@@ -63,8 +63,6 @@ describe('riskQuery', () => {
   })
 
   describe('API call fails', () => {
-    const { request } = require('@esri/arcgis-rest-request')
-
     it('should refresh the token when an Invalid token error occurs', async () => {
       [x, y] = [460121, 431744]
       const oldToken = await _currentToken()

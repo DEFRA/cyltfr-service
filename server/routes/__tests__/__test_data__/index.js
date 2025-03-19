@@ -178,7 +178,7 @@ const getValidSwDepth = () => {
   return { ...validSwDepth }
 }
 
-module.exports = {
+export {
   getValidData,
   getEmptyData,
   getNoLLFAData,

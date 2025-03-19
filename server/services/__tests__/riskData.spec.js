@@ -1,4 +1,5 @@
-const { riskData } = require('../riskData')
+import { riskData } from '../riskData.js'
+
 jest.mock('../../config')
 
 describe('riskData', () => {

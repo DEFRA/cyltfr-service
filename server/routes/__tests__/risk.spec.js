@@ -1,7 +1,8 @@
-const STATUS_CODES = require('http2').constants
-const createServer = require('../../../server')
-const riskQuery = require('../../services/riskQuery')
-const testData = require('./__test_data__/')
+import { constants as STATUS_CODES } from 'http2'
+import { createServer } from '../../index.js'
+import { riskQuery } from '../../services/riskQuery.js'
+import * as testData from './__test_data__/index.js'
+
 const options = {
   method: 'GET',
   url: '/floodrisk/564228/263339'
