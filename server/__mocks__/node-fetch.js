@@ -1,6 +1,4 @@
-jest.mock('node-fetch')
-
-const { Response, Request, Headers } = jest.requireActual('node-fetch')
+import { Response, Request, Headers } from 'node-fetch'
 
 const meta = {
   'Content-Type': 'application/json',
@@ -22,9 +20,5 @@ const fetch = jest.fn(() => {
   ))
 })
 
-module.exports = exports = fetch
-Object.defineProperty(exports, '__esModule', { value: true })
-exports.default = exports
-exports.Headers = Headers
-exports.Request = Request
-exports.Response = Response
+export default fetch
+export { Headers, Request, Response }

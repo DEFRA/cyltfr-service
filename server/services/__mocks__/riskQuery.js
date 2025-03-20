@@ -35,7 +35,7 @@ const reservoirQuery = jest.fn().mockImplementation(() => {
   return Promise.resolve(result.resData)
 })
 
-module.exports = {
+export {
   riskQuery,
   riversAndSeaDepth,
   surfaceWaterDepth,
