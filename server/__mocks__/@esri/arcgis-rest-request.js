@@ -1,3 +1,10 @@
+import { readFile } from 'fs/promises'
+const addressData = JSON.parse(
+  await readFile(
+    new URL('./mock-address-data.json', import.meta.url)
+  )
+)
+
 class ApplicationCredentialsManager {
   #tokenCount = 0
   correctId
@@ -32,7 +39,6 @@ class ApplicationCredentialsManager {
 
 const { appendCustomParams } = jest.requireActual('@esri/arcgis-rest-request')
 
-const addressData = require('./mock-address-data')
 const reservoirsDryDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/0'
 const reservoirsWetDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/1'
 const floodAlertAreasDataUrl = 'https://services1.arcgis.com/JZM7qJpmv7vJ0Hzx/arcgis/rest/services/check_long_term_flood_risk_service/FeatureServer/2'
@@ -201,4 +207,4 @@ const request = jest.fn((requesturl, requestObj) => {
   return new Promise((resolve, _reject) => { resolve({}) })
 })
 
-module.exports = { ApplicationCredentialsManager, appendCustomParams, request }
+export { ApplicationCredentialsManager, appendCustomParams, request }

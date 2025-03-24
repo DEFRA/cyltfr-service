@@ -1,8 +1,8 @@
 {
   "name": "risk-service",
   "version": "6.0.0",
-  "type": "module",
   "description": "Flood Service",
+  "type": "module",
   "main": "index.js",
   "engines": {
     "node": ">=20.11.0"
