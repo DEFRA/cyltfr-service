@@ -75,7 +75,15 @@ module.exports = {
         if ((item.riskoverride) && (item.apply === 'holding')) {
           const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
           if (riskOverride >= 0) {
-            response.surfaceWaterRisk = RiskLevels[riskOverride]
+            const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+
+            if (riskType === 'surfacewater') {
+              response.surfaceWaterRisk = RiskLevels[riskOverride]
+            } else if (riskType === 'surfacewaterclimatechange') {
+              response.surfaceWaterRiskCC = RiskLevels[riskOverride]
+            }
+
+            console.log(`Override applied: ${riskType} => ${RiskLevels[riskOverride]}`)
           }
         }
       }

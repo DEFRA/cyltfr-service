@@ -93,7 +93,8 @@ const nollfaDataRow = {
 const extraInfo = [{
   info: '',
   apply: 'holding',
-  riskoverride: 'Low'
+  riskoverride: 'Low',
+  risktype: 'Surface Water'
 },
 {
   info: '',
