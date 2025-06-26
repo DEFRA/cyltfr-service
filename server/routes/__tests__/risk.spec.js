@@ -124,7 +124,7 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
-  test('/floodrisk/{x}/{y} - Extra info result', async () => {
+  test('/floodrisk/{x}/{y} - Extra info result for surface water', async () => {
     const inputData = testData.getValidData()
     // The extra info contains a surface water override that will change the High to Low
     inputData.extrainfo = testData.getExtraInfo()
