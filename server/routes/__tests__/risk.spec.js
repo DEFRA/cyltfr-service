@@ -146,6 +146,25 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.payload).toMatch('"surfaceWaterRiskCC":"Low"')
   })
 
+  test('/floodrisk/{x}/{y} - Extra info result with unexpected riskType', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = [
+      {
+        apply: 'holding',
+        riskoverride: 'Low',
+        risktype: 'Unknown'
+      }
+    ]
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(warnSpy).toHaveBeenCalledWith('Unexpected riskType: unknown')
+    warnSpy.mockRestore()
+  })
+
   test('/floodrisk/{x}/{y} - riverAndSeaRisk with valid Risk_band', async () => {
     const inputData = testData.getValidData()
     inputData.riversAndSea = [
