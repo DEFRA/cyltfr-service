@@ -79,6 +79,7 @@ module.exports = {
 
             if (riskType === 'surfacewater') {
               response.surfaceWaterRisk = RiskLevels[riskOverride]
+              response.surfaceWaterRiskOverride = true
             } else if (riskType === 'surfacewaterclimatechange') {
               response.surfaceWaterRiskCC = RiskLevels[riskOverride]
               response.surfaceWaterRiskCCOverride = true
