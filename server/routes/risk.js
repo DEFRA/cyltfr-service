@@ -83,6 +83,11 @@ module.exports = {
             } else if (riskType === 'surfacewaterclimatechange') {
               response.surfaceWaterRiskCC = RiskLevels[riskOverride]
               response.surfaceWaterRiskCCOverride = true
+            } else if (riskType === 'riversandthesea') {
+              response.riverAndSeaRisk = {
+                probabilityForBand: RiskLevels[riskOverride]
+              }
+              response.riverAndSeaRiskOverride = true
             } else {
               console.warn(`Unexpected riskType: ${riskType}`)
             }
