@@ -113,17 +113,6 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
-  test('/floodrisk/{x}/{y} - Extra info result', async () => {
-    const inputData = testData.getValidData()
-    // The extra info contains a surface water override that will change the High to Low
-    inputData.extrainfo = testData.getExtraInfo()
-    riskQuery._queryResult(inputData)
-
-    const response = await server.inject(options)
-    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
-    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
-  })
-
   test('/floodrisk/{x}/{y} - Extra info result for surface water', async () => {
     const inputData = testData.getValidData()
     // The extra info contains a surface water override that will change the High to Low
@@ -144,6 +133,17 @@ describe('Unit tests - /floodrisk', () => {
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
     expect(response.payload).toMatch('"surfaceWaterRiskCC":"Low"')
+  })
+
+  test('/floodrisk/{x}/{y} - Extra info result for rivers and the sea', async () => {
+    const inputData = testData.getValidData()
+    // The extra info contains a rivers and the sea override that will change the high to low
+    inputData.extrainfo = testData.getExtraInfo()
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"riverAndSeaRisk":{"probabilityForBand":"Low"}')
   })
 
   test('/floodrisk/{x}/{y} - Extra info result with unexpected riskType', async () => {
