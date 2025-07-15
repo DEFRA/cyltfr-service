@@ -75,7 +75,19 @@ module.exports = {
         if ((item.riskoverride) && (item.apply === 'holding')) {
           const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
           if (riskOverride >= 0) {
-            response.surfaceWaterRisk = RiskLevels[riskOverride]
+            const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+
+            if (riskType === 'surfacewater') {
+              response.surfaceWaterRisk = RiskLevels[riskOverride]
+              response.surfaceWaterRiskOverride = true
+            } else if (riskType === 'riversandthesea') {
+              response.riverAndSeaRisk = {
+                probabilityForBand: RiskLevels[riskOverride]
+              }
+              response.riverAndSeaRiskOverride = true
+            } else {
+              console.warn(`Unexpected riskType: ${riskType}`)
+            }
           }
         }
       }
