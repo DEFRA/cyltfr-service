@@ -1,10 +1,10 @@
 {
   "name": "risk-service",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Flood Service",
   "main": "index.js",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=22.14.0"
   },
   "scripts": {
     "prepare": "husky .husky",
@@ -33,7 +33,7 @@
     "dotenv": "^16.4.5",
     "hapi-pino": "12.1.0",
     "joi": "^17.13.1",
-    "node-fetch": "^2.7.0",
+    "node-fetch": "2.7.0",
     "pg": "^8.11.1"
   },
   "devDependencies": {
