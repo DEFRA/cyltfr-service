@@ -100,12 +100,6 @@ const extraInfo = [{
   info: '',
   apply: 'holding',
   riskoverride: 'Low',
-  risktype: 'Surface Water Climate Change'
-},
-{
-  info: '',
-  apply: 'holding',
-  riskoverride: 'Low',
   risktype: 'Rivers and the sea'
 },
 {
