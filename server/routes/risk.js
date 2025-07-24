@@ -71,34 +71,38 @@ module.exports = {
         extraInfo: riskQueryResult.extrainfo
       }
 
-      const processExtraInfo = (item) => {
-        if ((item.riskoverride) && (item.apply === 'holding')) {
-          const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+      const handleSurfaceWaterRisk = (item, response) => {
+        const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+        if (riskOverride >= 0) {
+          response.surfaceWaterRisk = RiskLevels[riskOverride]
+          response.surfaceWaterRiskOverride = true
+        }
+        response.surfaceWaterRiskOverrideCC = item.riskoverridecc?.toLowerCase() === 'override'
+      }
 
-          if (riskType === 'surfacewater') {
-            const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-            if (riskOverride >= 0) {
-              response.surfaceWaterRisk = RiskLevels[riskOverride]
-              response.surfaceWaterRiskOverride = true
-            }
-
-            // Check for surface water climate change override
-            if (item.riskoverridecc?.toLowerCase() === 'override') {
-              response.surfaceWaterRiskOverrideCC = true
-            } else {
-              response.surfaceWaterRiskOverrideCC = false
-            }
-          } else if (riskType === 'riversandthesea') {
-            const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-            if (riskOverride >= 0) {
-              response.riverAndSeaRisk = {
-                probabilityForBand: RiskLevels[riskOverride]
-              }
-              response.riverAndSeaRiskOverride = true
-            }
-          } else {
-            console.warn(`Unexpected riskType: ${riskType}`)
+      const handleRiverAndSeaRisk = (item, response) => {
+        const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+        if (riskOverride >= 0) {
+          response.riverAndSeaRisk = {
+            probabilityForBand: RiskLevels[riskOverride]
           }
+          response.riverAndSeaRiskOverride = true
+        }
+      }
+
+      const processExtraInfo = (item) => {
+        if (!item.riskoverride || item.apply !== 'holding') return
+
+        const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+        switch (riskType) {
+          case 'surfacewater':
+            handleSurfaceWaterRisk(item, response)
+            break
+          case 'riversandthesea':
+            handleRiverAndSeaRisk(item, response)
+            break
+          default:
+            console.warn(`Unexpected riskType: ${riskType}`)
         }
       }
 
