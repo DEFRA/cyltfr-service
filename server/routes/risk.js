@@ -73,21 +73,31 @@ module.exports = {
 
       const processExtraInfo = (item) => {
         if ((item.riskoverride) && (item.apply === 'holding')) {
-          const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-          if (riskOverride >= 0) {
-            const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+          const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
 
-            if (riskType === 'surfacewater') {
+          if (riskType === 'surfacewater') {
+            const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+            if (riskOverride >= 0) {
               response.surfaceWaterRisk = RiskLevels[riskOverride]
               response.surfaceWaterRiskOverride = true
-            } else if (riskType === 'riversandthesea') {
+            }
+
+            // Check for surface water climate change override
+            if (item.riskoverridecc?.toLowerCase() === 'override') {
+              response.surfaceWaterRiskOverrideCC = true
+            } else {
+              response.surfaceWaterRiskOverrideCC = false
+            }
+          } else if (riskType === 'riversandthesea') {
+            const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+            if (riskOverride >= 0) {
               response.riverAndSeaRisk = {
                 probabilityForBand: RiskLevels[riskOverride]
               }
               response.riverAndSeaRiskOverride = true
-            } else {
-              console.warn(`Unexpected riskType: ${riskType}`)
             }
+          } else {
+            console.warn(`Unexpected riskType: ${riskType}`)
           }
         }
       }
