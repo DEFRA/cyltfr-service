@@ -71,7 +71,7 @@ module.exports = {
         extraInfo: riskQueryResult.extrainfo
       }
 
-      const handleSurfaceWaterRisk = (item, response) => {
+      const handleSurfaceWaterRisk = (item) => {
         const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
         if (riskOverride >= 0) {
           response.surfaceWaterRisk = RiskLevels[riskOverride]
@@ -80,7 +80,7 @@ module.exports = {
         response.surfaceWaterRiskOverrideCC = item.riskoverridecc?.toLowerCase() === 'override'
       }
 
-      const handleRiverAndSeaRisk = (item, response) => {
+      const handleRiverAndSeaRisk = (item) => {
         const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
         if (riskOverride >= 0) {
           response.riverAndSeaRisk = {
@@ -91,15 +91,16 @@ module.exports = {
       }
 
       const processExtraInfo = (item) => {
-        if (!item.riskoverride || item.apply !== 'holding') return
-
+        if (!item.riskoverride || item.apply !== 'holding') {
+          return
+        }
         const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
         switch (riskType) {
           case 'surfacewater':
-            handleSurfaceWaterRisk(item, response)
+            handleSurfaceWaterRisk(item)
             break
           case 'riversandthesea':
-            handleRiverAndSeaRisk(item, response)
+            handleRiverAndSeaRisk(item)
             break
           default:
             console.warn(`Unexpected riskType: ${riskType}`)

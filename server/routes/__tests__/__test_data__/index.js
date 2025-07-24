@@ -90,6 +90,7 @@ const nollfaDataRow = {
   dryReservoirs: null,
   extrainfo: null
 }
+const noOverride = 'Do not override'
 const extraInfo = [{
   info: '',
   apply: 'holding',
@@ -99,7 +100,7 @@ const extraInfo = [{
 {
   info: '',
   apply: 'holding',
-  riskoverride: 'Do not override',
+  riskoverride: noOverride,
   risktype: 'Surface Water',
   riskoverridecc: 'Override'
 },
@@ -112,17 +113,17 @@ const extraInfo = [{
 {
   info: '',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 },
 {
   info: 'There are improvements to the flood defences in this area, we expect the flood liklihood in this area to change on 1 April 2020',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 },
 {
   info: 'Some improvements to the flood defences in this area, we expect the flood liklihood in this area to change on 1 April 2020',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 },
 {
   info: 'Proposed schemes',
@@ -132,7 +133,7 @@ const extraInfo = [{
 {
   info: 'Flood action plan',
   apply: 'llfa',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 }]
 
 const getValidData = function () {
