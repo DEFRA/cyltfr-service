@@ -124,6 +124,16 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
+  test('/floodrisk/{x}/{y} - Climate change override only (from test data)', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = testData.getExtraInfo()
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"surfaceWaterRiskOverrideCC":true')
+  })
+
   test('/floodrisk/{x}/{y} - Extra info result for rivers and the sea', async () => {
     const inputData = testData.getValidData()
     // The extra info contains a rivers and the sea override that will change the high to low

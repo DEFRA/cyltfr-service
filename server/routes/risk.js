@@ -4,6 +4,42 @@ const { riskQuery } = require('../services/riskQuery')
 const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
 const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHighestRiskBand')
 
+const handleSurfaceWaterRisk = (item, response) => {
+  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+  if (riskOverride >= 0) {
+    response.surfaceWaterRisk = RiskLevels[riskOverride]
+    response.surfaceWaterRiskOverride = true
+  }
+  response.surfaceWaterRiskOverrideCC = item.riskoverridecc?.toLowerCase() === 'override'
+}
+
+const handleRiverAndSeaRisk = (item, response) => {
+  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+  if (riskOverride >= 0) {
+    response.riverAndSeaRisk = {
+      probabilityForBand: RiskLevels[riskOverride]
+    }
+    response.riverAndSeaRiskOverride = true
+  }
+}
+
+const processExtraInfo = (item, response) => {
+  if (!item.riskoverride || item.apply !== 'holding') {
+    return
+  }
+  const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+  switch (riskType) {
+    case 'surfacewater':
+      handleSurfaceWaterRisk(item, response)
+      break
+    case 'riversandthesea':
+      handleRiverAndSeaRisk(item, response)
+      break
+    default:
+      console.warn(`Unexpected riskType: ${riskType}`)
+  }
+}
+
 module.exports = {
   method: 'GET',
   path: '/floodrisk/{x}/{y}',
@@ -71,29 +107,8 @@ module.exports = {
         extraInfo: riskQueryResult.extrainfo
       }
 
-      const processExtraInfo = (item) => {
-        if ((item.riskoverride) && (item.apply === 'holding')) {
-          const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-          if (riskOverride >= 0) {
-            const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
-
-            if (riskType === 'surfacewater') {
-              response.surfaceWaterRisk = RiskLevels[riskOverride]
-              response.surfaceWaterRiskOverride = true
-            } else if (riskType === 'riversandthesea') {
-              response.riverAndSeaRisk = {
-                probabilityForBand: RiskLevels[riskOverride]
-              }
-              response.riverAndSeaRiskOverride = true
-            } else {
-              console.warn(`Unexpected riskType: ${riskType}`)
-            }
-          }
-        }
-      }
-
       if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
-        response.extraInfo.forEach(processExtraInfo)
+        response.extraInfo.forEach(item => processExtraInfo(item, response))
       }
 
       return response
