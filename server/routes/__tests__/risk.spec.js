@@ -124,7 +124,7 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
-  test('/floodrisk/{x}/{y} - Climate change override only (from test data)', async () => {
+  test('/floodrisk/{x}/{y} - Surface water climate change override only', async () => {
     const inputData = testData.getValidData()
     inputData.extrainfo = testData.getExtraInfo()
     riskQuery._queryResult(inputData)
@@ -143,6 +143,17 @@ describe('Unit tests - /floodrisk', () => {
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
     expect(response.payload).toMatch('"riverAndSeaRisk":{"probabilityForBand":"Low"}')
+  })
+
+  test('/floodrisk/{x}/{y} - Rivers and the sea climate change override only', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = testData.getExtraInfoRSCC()
+
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"riverAndSeaRiskOverrideCC":true')
   })
 
   test('/floodrisk/{x}/{y} - Extra info result with unexpected riskType', async () => {
