@@ -91,17 +91,19 @@ const nollfaDataRow = {
   extrainfo: null
 }
 const noOverride = 'Do not override'
+const surfaceWater = 'Surface Water'
+const riversAndSea = 'Rivers and the sea'
 const extraInfo = [{
   info: '',
   apply: 'holding',
   riskoverride: 'Low',
-  risktype: 'Surface Water'
+  risktype: surfaceWater
 },
 {
   info: '',
   apply: 'holding',
   riskoverride: 'Low',
-  risktype: 'Rivers and the sea'
+  risktype: riversAndSea
 },
 {
   info: '',
@@ -133,14 +135,14 @@ const extraInfoCC = [{
   info: '',
   apply: 'holding',
   riskoverride: null,
-  risktype: 'Rivers and the sea',
+  risktype: riversAndSea,
   riskoverriderscc: 'Override'
 },
 {
   info: '',
   apply: 'holding',
   riskoverride: noOverride,
-  risktype: 'Surface Water',
+  risktype: surfaceWater,
   riskoverridecc: 'Override'
 }]
 
@@ -165,7 +167,7 @@ const getExtraInfoCC = function () {
 
 const getNoRiskOverrideData = function () {
   const retval = { ...nollfaDataRow }
-  retval.extrainfo = [{ risktype: 'Rivers and the sea', info: 'Test data', apply: 'holding' }]
+  retval.extrainfo = [{ risktype: riversAndSea, info: 'Test data', apply: 'holding' }]
   return retval
 }
 
