@@ -100,13 +100,6 @@ const extraInfo = [{
 {
   info: '',
   apply: 'holding',
-  riskoverride: noOverride,
-  risktype: 'Surface Water',
-  riskoverridecc: 'Override'
-},
-{
-  info: '',
-  apply: 'holding',
   riskoverride: 'Low',
   risktype: 'Rivers and the sea'
 },
@@ -136,12 +129,19 @@ const extraInfo = [{
   riskoverride: noOverride
 }]
 
-const extraInfoRSCC = [{
+const extraInfoCC = [{
   info: '',
   apply: 'holding',
   riskoverride: null,
   risktype: 'Rivers and the sea',
   riskoverriderscc: 'Override'
+},
+{
+  info: '',
+  apply: 'holding',
+  riskoverride: noOverride,
+  risktype: 'Surface Water',
+  riskoverridecc: 'Override'
 }]
 
 const getValidData = function () {
@@ -159,8 +159,8 @@ const getNoLLFAData = function () {
 const getExtraInfo = function () {
   return extraInfo
 }
-const getExtraInfoRSCC = function () {
-  return extraInfoRSCC
+const getExtraInfoCC = function () {
+  return extraInfoCC
 }
 
 const getNoRiskOverrideData = function () {
@@ -209,7 +209,7 @@ module.exports = {
   getEmptyData,
   getNoLLFAData,
   getExtraInfo,
-  getExtraInfoRSCC,
+  getExtraInfoCC,
   getValidRsDepth,
   getValidSwDepth,
   getNoRiskOverrideData
