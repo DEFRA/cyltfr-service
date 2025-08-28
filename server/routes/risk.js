@@ -25,10 +25,11 @@ const handleRiverAndSeaRisk = (item, response) => {
 }
 
 const processExtraInfo = (item, response) => {
-  const hasPresentDayOverride = !!item.riskoverride
+  const hasPresentDayOverride = Boolean(item.riskoverride)
   const hasClimateChangeOverride = item.riskoverriderscc?.toLowerCase() === 'override'
+  const hasOverrides = hasPresentDayOverride || hasClimateChangeOverride
 
-  if (!(hasPresentDayOverride || hasClimateChangeOverride) || item.apply !== 'holding') {
+  if (!hasOverrides || item.apply !== 'holding') {
     return
   }
 
@@ -113,7 +114,6 @@ module.exports = {
       }
 
       if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
-        console.log('Extra info from admin console:', JSON.stringify(response.extraInfo, null, 2))
         response.extraInfo.forEach(item => processExtraInfo(item, response))
       }
 
