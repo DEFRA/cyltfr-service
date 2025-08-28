@@ -5,7 +5,7 @@ const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAr
 const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHighestRiskBand')
 
 const handleSurfaceWaterRisk = (item, response) => {
-  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+  const riskOverride = item.riskoverride ? RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase()) : -1
   if (riskOverride >= 0) {
     response.surfaceWaterRisk = RiskLevels[riskOverride]
     response.surfaceWaterRiskOverride = true
@@ -14,19 +14,25 @@ const handleSurfaceWaterRisk = (item, response) => {
 }
 
 const handleRiverAndSeaRisk = (item, response) => {
-  const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
+  const riskOverride = item.riskoverride ? RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase()) : -1
   if (riskOverride >= 0) {
     response.riverAndSeaRisk = {
       probabilityForBand: RiskLevels[riskOverride]
     }
     response.riverAndSeaRiskOverride = true
   }
+  response.riverAndSeaRiskOverrideCC = item.riskoverriderscc?.toLowerCase() === 'override'
 }
 
 const processExtraInfo = (item, response) => {
-  if (!item.riskoverride || item.apply !== 'holding') {
+  const hasPresentDayOverride = Boolean(item.riskoverride)
+  const hasClimateChangeOverride = item.riskoverriderscc?.toLowerCase() === 'override'
+  const hasOverrides = hasPresentDayOverride || hasClimateChangeOverride
+
+  if (!hasOverrides || item.apply !== 'holding') {
     return
   }
+
   const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
   switch (riskType) {
     case 'surfacewater':

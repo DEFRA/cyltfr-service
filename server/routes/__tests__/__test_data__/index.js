@@ -91,24 +91,19 @@ const nollfaDataRow = {
   extrainfo: null
 }
 const noOverride = 'Do not override'
+const surfaceWater = 'Surface Water'
+const riversAndSea = 'Rivers and the sea'
 const extraInfo = [{
   info: '',
   apply: 'holding',
   riskoverride: 'Low',
-  risktype: 'Surface Water'
-},
-{
-  info: '',
-  apply: 'holding',
-  riskoverride: noOverride,
-  risktype: 'Surface Water',
-  riskoverridecc: 'Override'
+  risktype: surfaceWater
 },
 {
   info: '',
   apply: 'holding',
   riskoverride: 'Low',
-  risktype: 'Rivers and the sea'
+  risktype: riversAndSea
 },
 {
   info: '',
@@ -136,6 +131,21 @@ const extraInfo = [{
   riskoverride: noOverride
 }]
 
+const extraInfoCC = [{
+  info: '',
+  apply: 'holding',
+  riskoverride: null,
+  risktype: riversAndSea,
+  riskoverriderscc: 'Override'
+},
+{
+  info: '',
+  apply: 'holding',
+  riskoverride: noOverride,
+  risktype: surfaceWater,
+  riskoverridecc: 'Override'
+}]
+
 const getValidData = function () {
   return { ...validDataRow }
 }
@@ -151,10 +161,13 @@ const getNoLLFAData = function () {
 const getExtraInfo = function () {
   return extraInfo
 }
+const getExtraInfoCC = function () {
+  return extraInfoCC
+}
 
 const getNoRiskOverrideData = function () {
   const retval = { ...nollfaDataRow }
-  retval.extrainfo = [{ risktype: 'Rivers and the sea', info: 'Test data', apply: 'holding' }]
+  retval.extrainfo = [{ risktype: riversAndSea, info: 'Test data', apply: 'holding' }]
   return retval
 }
 
@@ -198,6 +211,7 @@ module.exports = {
   getEmptyData,
   getNoLLFAData,
   getExtraInfo,
+  getExtraInfoCC,
   getValidRsDepth,
   getValidSwDepth,
   getNoRiskOverrideData
