@@ -97,7 +97,16 @@ module.exports = {
         isGroundwaterArea = true
       }
 
-      const llfa = riskQueryResult.llfa?.length > 0 ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
+      const llfaList = riskQueryResult.llfa || []
+
+      // This is a fix to stop certain locations defaulting to "Greater London Authority" and uses the correct local authority
+      const llfaName = llfaList.find(entry =>
+        entry.attributes.name !== 'Greater London Authority'
+      )
+
+      const llfa = llfaName
+        ? llfaName.attributes.name
+        : llfaList[0]?.attributes.name || 'Unknown'
 
       const response = {
         isGroundwaterArea,
