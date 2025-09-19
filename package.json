@@ -9,7 +9,8 @@
   "scripts": {
     "prepare": "husky .husky",
     "start": "node index.js",
-    "test": "npm run test:lint && npm run test:jest",
+    "test": "npm run test:lint && npm run test:audit && npm run test:jest",
+    "test:audit": "npm audit",
     "test:jest": "jest --no-cache  --detectOpenHandles --runInBand --forceExit  --collectCoverage server/",
     "test:lint": "standard",
     "pre-commit": "npm run test && lint-staged",
