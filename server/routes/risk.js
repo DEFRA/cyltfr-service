@@ -33,7 +33,7 @@ const processExtraInfo = (item, response) => {
     return
   }
 
-  const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '')
+  const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '') || 'surfacewater'
   switch (riskType) {
     case 'surfacewater':
       handleSurfaceWaterRisk(item, response)
