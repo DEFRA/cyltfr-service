@@ -113,7 +113,7 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
   })
 
-  test('/floodrisk/{x}/{y} - Extra info result', async () => {
+  test('/floodrisk/{x}/{y} - Extra info result for surface water', async () => {
     const inputData = testData.getValidData()
     // The extra info contains a surface water override that will change the High to Low
     inputData.extrainfo = testData.getExtraInfo()
@@ -124,15 +124,55 @@ describe('Unit tests - /floodrisk', () => {
     expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
   })
 
-  test('/floodrisk/{x}/{y} - Extra info result', async () => {
+  test('/floodrisk/{x}/{y} - Extra info result for rivers and the sea', async () => {
     const inputData = testData.getValidData()
-    // The extra info contains a surface water override that will change the High to Low
+    // The extra info contains a rivers and the sea override that will change the high to low
     inputData.extrainfo = testData.getExtraInfo()
     riskQuery._queryResult(inputData)
 
     const response = await server.inject(options)
     expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
-    expect(response.payload).toMatch('"surfaceWaterRisk":"Low"')
+    expect(response.payload).toMatch('"riverAndSeaRisk":{"probabilityForBand":"Low"}')
+  })
+
+  test('/floodrisk/{x}/{y} - Surface water climate change override only', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = testData.getExtraInfoCC()
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"surfaceWaterRiskOverrideCC":true')
+  })
+
+  test('/floodrisk/{x}/{y} - Rivers and the sea climate change override only', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = testData.getExtraInfoCC()
+
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(response.payload).toMatch('"riverAndSeaRiskOverrideCC":true')
+  })
+
+  test('/floodrisk/{x}/{y} - Extra info result with unexpected riskType', async () => {
+    const inputData = testData.getValidData()
+    inputData.extrainfo = [
+      {
+        apply: 'holding',
+        riskoverride: 'Low',
+        risktype: 'Unknown'
+      }
+    ]
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+
+    riskQuery._queryResult(inputData)
+
+    const response = await server.inject(options)
+    expect(response.statusCode).toEqual(STATUS_CODES.HTTP_STATUS_OK)
+    expect(warnSpy).toHaveBeenCalledWith('Unexpected riskType: unknown')
+    warnSpy.mockRestore()
   })
 
   test('/floodrisk/{x}/{y} - riverAndSeaRisk with valid Risk_band', async () => {

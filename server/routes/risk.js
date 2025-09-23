@@ -4,6 +4,48 @@ const { riskQuery } = require('../services/riskQuery')
 const { getReservoirDryRisk, getReservoirWetRisk, processAreaList, groundWaterAreaCheck } = require('../services/processReservoirRisk')
 const { getHighestRiskBand, RiskLevels, RiskOverrideLevels } = require('./getHighestRiskBand')
 
+const handleSurfaceWaterRisk = (item, response) => {
+  const riskOverride = item.riskoverride ? RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase()) : -1
+  if (riskOverride >= 0) {
+    response.surfaceWaterRisk = RiskLevels[riskOverride]
+    response.surfaceWaterRiskOverride = true
+  }
+  response.surfaceWaterRiskOverrideCC = item.riskoverridecc?.toLowerCase() === 'override'
+}
+
+const handleRiverAndSeaRisk = (item, response) => {
+  const riskOverride = item.riskoverride ? RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase()) : -1
+  if (riskOverride >= 0) {
+    response.riverAndSeaRisk = {
+      probabilityForBand: RiskLevels[riskOverride]
+    }
+    response.riverAndSeaRiskOverride = true
+  }
+  response.riverAndSeaRiskOverrideCC = item.riskoverriderscc?.toLowerCase() === 'override'
+}
+
+const processExtraInfo = (item, response) => {
+  const hasPresentDayOverride = Boolean(item.riskoverride)
+  const hasClimateChangeOverride = item.riskoverriderscc?.toLowerCase() === 'override'
+  const hasOverrides = hasPresentDayOverride || hasClimateChangeOverride
+
+  if (!hasOverrides || item.apply !== 'holding') {
+    return
+  }
+
+  const riskType = item.risktype?.toLowerCase().replace(/\s+/g, '') || 'surfacewater'
+  switch (riskType) {
+    case 'surfacewater':
+      handleSurfaceWaterRisk(item, response)
+      break
+    case 'riversandthesea':
+      handleRiverAndSeaRisk(item, response)
+      break
+    default:
+      console.warn(`Unexpected riskType: ${riskType}`)
+  }
+}
+
 module.exports = {
   method: 'GET',
   path: '/floodrisk/{x}/{y}',
@@ -55,7 +97,16 @@ module.exports = {
         isGroundwaterArea = true
       }
 
-      const llfa = riskQueryResult.llfa?.length > 0 ? riskQueryResult.llfa[0].attributes.name : 'Unknown'
+      const llfaList = riskQueryResult.llfa || []
+
+      // This is a fix to stop certain locations defaulting to "Greater London Authority" and uses the correct local authority
+      const llfaName = llfaList.find(entry =>
+        entry.attributes.name !== 'Greater London Authority'
+      )
+
+      const llfa = llfaName
+        ? llfaName.attributes.name
+        : llfaList[0]?.attributes.name || 'Unknown'
 
       const response = {
         isGroundwaterArea,
@@ -71,17 +122,8 @@ module.exports = {
         extraInfo: riskQueryResult.extrainfo
       }
 
-      const processExtraInfo = (item) => {
-        if ((item.riskoverride) && (item.apply === 'holding')) {
-          const riskOverride = RiskOverrideLevels.indexOf(item.riskoverride.toLowerCase())
-          if (riskOverride >= 0) {
-            response.surfaceWaterRisk = RiskLevels[riskOverride]
-          }
-        }
-      }
-
       if (Array.isArray(response.extraInfo) && response.extraInfo.length) {
-        response.extraInfo.forEach(processExtraInfo)
+        response.extraInfo.forEach(item => processExtraInfo(item, response))
       }
 
       return response

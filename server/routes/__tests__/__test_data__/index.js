@@ -90,25 +90,35 @@ const nollfaDataRow = {
   dryReservoirs: null,
   extrainfo: null
 }
+const noOverride = 'Do not override'
+const surfaceWater = 'Surface Water'
+const riversAndSea = 'Rivers and the sea'
 const extraInfo = [{
   info: '',
   apply: 'holding',
-  riskoverride: 'Low'
+  riskoverride: 'Low',
+  risktype: surfaceWater
 },
 {
   info: '',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: 'Low',
+  risktype: riversAndSea
+},
+{
+  info: '',
+  apply: 'holding',
+  riskoverride: noOverride
 },
 {
   info: 'There are improvements to the flood defences in this area, we expect the flood liklihood in this area to change on 1 April 2020',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 },
 {
   info: 'Some improvements to the flood defences in this area, we expect the flood liklihood in this area to change on 1 April 2020',
   apply: 'holding',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
 },
 {
   info: 'Proposed schemes',
@@ -118,7 +128,22 @@ const extraInfo = [{
 {
   info: 'Flood action plan',
   apply: 'llfa',
-  riskoverride: 'Do not override'
+  riskoverride: noOverride
+}]
+
+const extraInfoCC = [{
+  info: '',
+  apply: 'holding',
+  riskoverride: null,
+  risktype: riversAndSea,
+  riskoverriderscc: 'Override'
+},
+{
+  info: '',
+  apply: 'holding',
+  riskoverride: noOverride,
+  risktype: surfaceWater,
+  riskoverridecc: 'Override'
 }]
 
 const getValidData = function () {
@@ -136,10 +161,13 @@ const getNoLLFAData = function () {
 const getExtraInfo = function () {
   return extraInfo
 }
+const getExtraInfoCC = function () {
+  return extraInfoCC
+}
 
 const getNoRiskOverrideData = function () {
   const retval = { ...nollfaDataRow }
-  retval.extrainfo = [{ risktype: 'Rivers and the sea', info: 'Test data', apply: 'holding' }]
+  retval.extrainfo = [{ risktype: riversAndSea, info: 'Test data', apply: 'holding' }]
   return retval
 }
 
@@ -183,6 +211,7 @@ module.exports = {
   getEmptyData,
   getNoLLFAData,
   getExtraInfo,
+  getExtraInfoCC,
   getValidRsDepth,
   getValidSwDepth,
   getNoRiskOverrideData
