@@ -12,7 +12,7 @@
     "test": "npm run test:lint && npm run test:audit && npm run test:jest",
     "test:audit": "npm audit",
     "test:jest": "jest --no-cache  --detectOpenHandles --runInBand --forceExit  --collectCoverage server/",
-    "test:lint": "standard",
+    "test:lint": "eslint",
     "pre-commit": "npm run test && lint-staged",
     "container:build": "docker build -t cyltfr-risk-service --target production .",
     "container:start": "docker run -d --rm --env-file .env -p 8050:8050 --name risk-service cyltfr-risk-service",
@@ -30,8 +30,8 @@
   "dependencies": {
     "@esri/arcgis-rest-request": "^4.7.3",
     "@hapi/boom": "^10.0.1",
-    "@hapi/hapi": "^21.4.3",
-    "dotenv": "^17.2.2",
+    "@hapi/hapi": "^21.4.4",
+    "dotenv": "^17.2.3",
     "hapi-pino": "13.0.0",
     "joi": "^18.0.1",
     "node-fetch": "^2.7.0",
@@ -39,16 +39,12 @@
   },
   "devDependencies": {
     "blipp": "4.0.2",
+    "eslint": "^9.39.1",
     "husky": "^9.1.7",
-    "jest": "^30.1.3",
-    "lint-staged": "^16.1.6",
-    "nodemon": "^3.1.10",
-    "standard": "^17.1.2"
-  },
-  "standard": {
-    "env": [
-      "jest"
-    ]
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.6",
+    "neostandard": "^0.12.2",
+    "nodemon": "^3.1.10"
   },
   "husky": {
     "hooks": {
@@ -56,7 +52,7 @@
     }
   },
   "lint-staged": {
-    "*.js": "standard --fix"
+    "*.js": "eslint --fix"
   },
   "jest": {
     "setupFiles": [
