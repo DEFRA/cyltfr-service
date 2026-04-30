@@ -21,20 +21,6 @@ function loadRiskQueries () {
   riskQueriesLoaded = true
 }
 
-function processEsriHeaders (response) {
-  // check if response.json() is a function, if it's not, then we didn't use rawResponse: true
-  if (typeof response.json !== 'function') {
-    return Promise.resolve(response)
-  }
-  if (config.performanceLogging) {
-    const ruPerMin = response.headers.get('x-esri-org-request-units-per-min')
-    if (ruPerMin) {
-      console.log('{"RequestUnitsPerMinute" : "%s"}', ruPerMin)
-    }
-  }
-  return Promise.resolve(response.json())
-}
-
 function checkResult (result, query) {
   return new Promise((resolve, _reject) => {
     if (result.error) {
@@ -115,8 +101,7 @@ const runQueries = async (x, y, queries) => {
         geometry,
         geometryType: 'esriGeometryPoint', // NOSONAR
         authentication: appManager.token,
-        outFields: query.outFields || undefined,
-        rawResponse: true
+        outFields: query.outFields || undefined
       }
       if (query.layers) {
         requestOptions.layerDefs = {}
@@ -134,7 +119,6 @@ const runQueries = async (x, y, queries) => {
         }
       }
       return esriRequest(requestOptions)
-        .then((response) => { return processEsriHeaders(response) })
         .then((result) => { return checkResult(result, query) })
     } else {
       return riskData(query.url).then((result) => { return checkResult(result, query) })
