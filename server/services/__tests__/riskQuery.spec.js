@@ -43,7 +43,7 @@ describe('riskQuery', () => {
       expect(result).toEqual(expect.objectContaining({
         wetReservoirs: reservoirs.wet,
         dryReservoirs: reservoirs.dry,
-        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        riversAndSea: [{ attributes: { Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
         surfaceWater: []
       }))
     })
@@ -75,7 +75,7 @@ describe('riskQuery', () => {
       expect(result).toEqual(expect.objectContaining({
         wetReservoirs: reservoirs.wet,
         dryReservoirs: reservoirs.dry,
-        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        riversAndSea: [{ attributes: { Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
         surfaceWater: []
       }))
 
@@ -91,7 +91,7 @@ describe('riskQuery', () => {
       expect(result).toEqual(expect.objectContaining({
         wetReservoirs: reservoirs.wet,
         dryReservoirs: reservoirs.dry,
-        riversAndSea: [{ attributes: { Confidence: 2, Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
+        riversAndSea: [{ attributes: { Label: 'Medium **', OBJECTID: 38065, Risk_band: 'Medium', Shape__Area: 127436, Shape__Length: 5001 } }],
         surfaceWater: []
       }))
     })
@@ -279,8 +279,8 @@ const swDepthQuery = {
 const returnedQuery = {
   wetReservoirs: [],
   dryReservoirs: [],
-  riversAndSea: [{ attributes: { Confidence: 4, Label: 'High ****', OBJECTID: 38063, Risk_band: 'High', Shape__Area: 136876, Shape__Length: 8084 } }],
-  surfaceWater: [{ attributes: { Confidence: 4, Label: 'High ****', OBJECTID: 212275, Risk_band: 'High', Shape__Area: 17836, Shape__Length: 12820 } }],
+  riversAndSea: [{ attributes: { Label: 'High ****', OBJECTID: 38063, Risk_band: 'High', Shape__Area: 136876, Shape__Length: 8084 } }],
+  surfaceWater: [{ attributes: { Label: 'High ****', OBJECTID: 212275, Risk_band: 'High', Shape__Area: 17836, Shape__Length: 12820 } }],
   floodAlertAreas: [
     {
       attributes: {

@@ -10,7 +10,6 @@
               "OBJECTID": 38063,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 136876,
               "Shape__Length": 8084
             }
@@ -22,7 +21,6 @@
               "OBJECTID": 38063,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 136876,
               "Shape__Length": 8084
             }
@@ -34,7 +32,6 @@
               "OBJECTID": 212275,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 17836,
               "Shape__Length": 12820
             }
@@ -46,7 +43,6 @@
               "OBJECTID": 212275,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 17836,
               "Shape__Length": 12820
             }
@@ -102,7 +98,6 @@
               "OBJECTID": 38063,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 136876,
               "Shape__Length": 8084
             }
@@ -114,7 +109,6 @@
               "OBJECTID": 38063,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 136876,
               "Shape__Length": 8084
             }
@@ -126,7 +120,6 @@
               "OBJECTID": 212275,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 17836,
               "Shape__Length": 12820
             }
@@ -138,7 +131,6 @@
               "OBJECTID": 212275,
               "Label": "High ****",
               "Risk_band": "High",
-              "Confidence": 4,
               "Shape__Area": 17836,
               "Shape__Length": 12820
             }
@@ -330,7 +322,6 @@
               "OBJECTID": 38065,
               "Label": "Medium **",
               "Risk_band": "Medium",
-              "Confidence": 2,
               "Shape__Area": 127436,
               "Shape__Length": 5001
             }
@@ -342,7 +333,6 @@
               "OBJECTID": 38065,
               "Label": "Medium **",
               "Risk_band": "Medium",
-              "Confidence": 2,
               "Shape__Area": 127436,
               "Shape__Length": 5001
             }
@@ -369,7 +359,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -381,7 +370,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -393,7 +381,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -405,7 +392,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -417,7 +403,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -429,7 +414,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -441,7 +425,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -453,7 +436,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -465,7 +447,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -477,7 +458,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -489,7 +469,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
@@ -501,7 +480,6 @@
               "OBJECTID": 79182,
               "Risk_band": "High",
               "Label": null,
-              "Confidence": null,
               "Shape__Area": 288512.37680053711,
               "Shape__Length": 6950.7171272274918
             }
