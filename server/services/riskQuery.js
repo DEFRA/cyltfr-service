@@ -24,7 +24,7 @@ function loadRiskQueries () {
 function checkResult (result, query) {
   return new Promise((resolve, _reject) => {
     if (result.error) {
-      console.log('Error: %s', result.error.message)
+      console.log('Error: %s\n', result.error.message)
       throw new Error(`${result.error.code}: ${result.error.message}`)
     }
     if (config.performanceLogging) {
@@ -131,7 +131,7 @@ const runQueries = async (x, y, queries) => {
       if (!err) {
         err = new Error(`${promiseresult.reason}`, { cause: queries[index] })
       }
-      console.log(`${promiseresult.reason} : %s`, JSON.stringify(queries[index]))
+      console.log(`${promiseresult.reason} : %s\n`, JSON.stringify(queries[index]))
     } else {
       results[index] = promiseresult.value
     }
@@ -172,7 +172,7 @@ async function externalQueries (x, y, queries) {
     results.forEach((result, index) => {
       if (queries[index].esriCall) {
         if (!((result.features) || (result.layers))) {
-          console.log('Error: Invalid response for %s', queries[index].key)
+          console.log('Error: Invalid response for %s\n', queries[index].key)
           console.log(result)
           throw new Error(`Invalid response for ${queries[index].key}`)
         }
@@ -192,8 +192,8 @@ async function externalQueries (x, y, queries) {
       }
     })
     if (config.performanceLogging) {
-      console.log('{"TokenRefreshTime" : %d}', tokenRefreshTime)
-      console.log(JSON.stringify(allPerfData))
+      console.log('{"TokenRefreshTime" : %d}\n', tokenRefreshTime)
+      console.log(JSON.stringify(allPerfData, null, '\t'))
     }
   } catch (err) {
     const url = err.cause ? err.cause.url : ''
