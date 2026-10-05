@@ -6,7 +6,7 @@ on:
 
 env:
   REPOSITORY: long_term_flood_risk/service
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
