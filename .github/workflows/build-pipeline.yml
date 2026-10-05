@@ -22,7 +22,7 @@ jobs:
     if: needs.unit-tests.result == 'success' && needs.dependency-review.result == 'success'
     uses: ./.github/workflows/docker.yml
     secrets: inherit
-    # Needed for the Docker workflow's AWS OIDC login.
+    # Needed for docker.yml's OIDC login
     permissions:
       id-token: write
       contents: read
